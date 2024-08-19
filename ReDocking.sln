@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReDocking", "ReDocking\ReDocking.csproj", "{60E0D587-DE56-4C7C-860E-A86A186172E7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60E0D587-DE56-4C7C-860E-A86A186172E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60E0D587-DE56-4C7C-860E-A86A186172E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60E0D587-DE56-4C7C-860E-A86A186172E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60E0D587-DE56-4C7C-860E-A86A186172E7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
