@@ -9,4 +9,15 @@
         <FluentTheme />
         <sty:FluentAvaloniaTheme />
     </Application.Styles>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="EdgeBar.axaml" />
+                <MergeResourceInclude Source="EdgeBarButton.axaml" />
+                <MergeResourceInclude Source="ReDock.axaml" />
+                <MergeResourceInclude Source="VerticallySplittedView.axaml" />
+                <MergeResourceInclude Source="HorizontallySplittedView.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

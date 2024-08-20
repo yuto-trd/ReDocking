@@ -1,0 +1,61 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:ReDocking">
+    <Design.PreviewWith>
+        <controls:ReDock />
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:ReDock}" TargetType="controls:ReDock">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <!--  Left Tool  -->
+                        <ColumnDefinition Width="Auto" />
+                        <!--  Left Separator  -->
+                        <ColumnDefinition Width="Auto" />
+                        <!--  Center  -->
+                        <ColumnDefinition Width="*" />
+                        <!--  Right Separator  -->
+                        <ColumnDefinition Width="Auto" />
+                        <!--  Right Tool  -->
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter Name="PART_LeftContentPresenter"
+                                      Grid.Column="0"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      controls:VisibilityChangedBehavior.GridLength="Auto"
+                                      BorderBrush="{DynamicResource EdgeDividerBrush}"
+                                      BorderThickness="0,0,1,0"
+                                      Content="{TemplateBinding LeftContent}"
+                                      ContentTemplate="{TemplateBinding LeftContentTemplate}" />
+                    <GridSplitter Name="PART_LeftSplitter"
+                                  Grid.Column="1"
+                                  Width="1"
+                                  Background="Transparent" />
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                      Grid.Column="1"
+                                      Grid.ColumnSpan="3"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    <GridSplitter Name="PART_RightSplitter"
+                                  Grid.Column="3"
+                                  Width="1"
+                                  Background="Transparent" />
+                    <ContentPresenter Name="PART_RightContentPresenter"
+                                      Grid.Column="4"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      controls:VisibilityChangedBehavior.GridLength="Auto"
+                                      BorderBrush="{DynamicResource EdgeDividerBrush}"
+                                      BorderThickness="1,0,0,0"
+                                      Content="{TemplateBinding RightContent}"
+                                      ContentTemplate="{TemplateBinding RightContentTemplate}" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

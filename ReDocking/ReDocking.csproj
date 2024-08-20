@@ -22,7 +22,14 @@
         <PackageReference Include="LucideAvalonia" Version="1.5.0" />
         <PackageReference Include="ObservableCollections" Version="2.2.0" />
         <PackageReference Include="ObservableCollections.R3" Version="2.2.0" />
-        <PackageReference Include="R3" Version="1.2.6" />
-        <PackageReference Include="R3Extensions.Avalonia" Version="1.2.6" />
+        <PackageReference Include="R3" Version="1.2.7" />
+        <PackageReference Include="R3Extensions.Avalonia" Version="1.2.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="HorizontallySplittedView.axaml.cs">
+        <DependentUpon>HorizontallySplittedView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

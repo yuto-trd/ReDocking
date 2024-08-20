@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:ReDocking"
+                    xmlns:ui="using:FluentAvalonia.UI.Controls">
+    <Design.PreviewWith>
+        <controls:EdgeBarButton />
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:EdgeBarButton}"
+                  BasedOn="{StaticResource TransparentToggleButton}"
+                  TargetType="controls:EdgeBarButton">
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Content">
+            <Template>
+                <ui:IconSourceElement IconSource="{Binding IconSource, RelativeSource={RelativeSource AncestorType={x:Type controls:EdgeBarButton}}}" />
+            </Template>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

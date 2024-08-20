@@ -1,0 +1,47 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:ReDocking">
+    <Design.PreviewWith>
+        <controls:HorizontallySplittedView />
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:HorizontallySplittedView}" TargetType="controls:HorizontallySplittedView">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ContentPresenter Name="PART_RightContentPresenter"
+                                      Grid.Column="1"
+                                      Grid.ColumnSpan="2"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      controls:VisibilityChangedBehavior.Column="2"
+                                      controls:VisibilityChangedBehavior.GridLength="Auto"
+                                      BorderBrush="{DynamicResource EdgeDividerBrush}"
+                                      BorderThickness="1,0,0,0"
+                                      Content="{TemplateBinding RightContent}"
+                                      ContentTemplate="{TemplateBinding RightContentTemplate}" />
+
+                    <GridSplitter Name="PART_Splitter"
+                                  Grid.Column="1"
+                                  Background="Transparent" />
+
+                    <ContentPresenter Name="PART_LeftContentPresenter"
+                                      Grid.Column="0"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      controls:VisibilityChangedBehavior.Column="0"
+                                      controls:VisibilityChangedBehavior.GridLength="Auto"
+                                      Content="{TemplateBinding LeftContent}"
+                                      ContentTemplate="{TemplateBinding LeftContentTemplate}" />
+
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

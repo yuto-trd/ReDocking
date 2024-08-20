@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:ReDocking">
+    <Design.PreviewWith>
+        <controls:VerticallySplittedView />
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:VerticallySplittedView}" TargetType="controls:VerticallySplittedView">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <!--  Separator  -->
+                        <RowDefinition Height="Auto" />
+                        <!--  Bottom Tool  -->
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <ContentPresenter Name="PART_TopContentPresenter"
+                                      Grid.Row="0"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      controls:VisibilityChangedBehavior.GridLength="Auto"
+                                      controls:VisibilityChangedBehavior.Row="0"
+                                      Content="{TemplateBinding TopContent}"
+                                      ContentTemplate="{TemplateBinding TopContentTemplate}" />
+
+                    <GridSplitter Name="PART_Splitter"
+                                  Grid.Row="1"
+                                  Background="Transparent" />
+
+                    <!--  Bottom Tool  -->
+                    <ContentPresenter Name="PART_BottomContentPresenter"
+                                      Grid.Row="1"
+                                      Grid.RowSpan="2"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                      controls:VisibilityChangedBehavior.GridLength="*"
+                                      controls:VisibilityChangedBehavior.Row="2"
+                                      BorderBrush="{DynamicResource EdgeDividerBrush}"
+                                      BorderThickness="0,1,0,0"
+                                      Content="{TemplateBinding BottomContent}"
+                                      ContentTemplate="{TemplateBinding BottomContentTemplate}" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>
