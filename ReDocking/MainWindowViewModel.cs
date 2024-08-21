@@ -39,8 +39,11 @@ public class MainWindowViewModel : IDisposable
         LeftTools.Add(new ToolWindowViewModel("Explorer", "\uec50"));
         LeftBottomTools.Add(new ToolWindowViewModel("Timeline", "\ueca5"));
         RightTopTools.Add(new ToolWindowViewModel("Notifications", "\uea8f"));
+        RightTopTools.Add(new ToolWindowViewModel("Notifications2", "\uea8f"));
         RightTools.Add(new ToolWindowViewModel("Properties", "\ue15e"));
+        RightTools.Add(new ToolWindowViewModel("Properties2", "\ue15e"));
         RightBottomTools.Add(new ToolWindowViewModel("Path Editor", "\uedfb"));
+        RightBottomTools.Add(new ToolWindowViewModel("Path Editor 2", "\uedfb"));
     }
 
     public ObservableList<ToolWindowViewModel> LeftTopTools { get; } = [];

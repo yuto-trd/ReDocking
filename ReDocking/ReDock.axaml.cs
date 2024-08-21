@@ -2,12 +2,11 @@ using System;
 using System.Reactive.Linq;
 
 using Avalonia;
-using Avalonia.Reactive;
-using Avalonia.Reactive.Operators;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Metadata;
 
@@ -21,17 +20,34 @@ public class ReDock : TemplatedControl
     public static readonly StyledProperty<IDataTemplate?> LeftContentTemplateProperty =
         AvaloniaProperty.Register<ReDock, IDataTemplate?>(nameof(LeftContentTemplate));
 
+    public static readonly StyledProperty<double> LeftWidthProportionProperty =
+        AvaloniaProperty.Register<ReDock, double>(nameof(LeftWidthProportion), defaultValue: 1 / 4d);
+
     public static readonly StyledProperty<object?> ContentProperty =
         AvaloniaProperty.Register<ReDock, object?>(nameof(Content));
 
     public static readonly StyledProperty<IDataTemplate?> ContentTemplateProperty =
         AvaloniaProperty.Register<ReDock, IDataTemplate?>(nameof(ContentTemplate));
 
+    public static readonly StyledProperty<double> WidthProportionProperty =
+        AvaloniaProperty.Register<ReDock, double>(nameof(WidthProportion), defaultValue: 1 / 2d);
+
     public static readonly StyledProperty<object?> RightContentProperty =
         AvaloniaProperty.Register<ReDock, object?>(nameof(RightContent));
 
     public static readonly StyledProperty<IDataTemplate?> RightContentTemplateProperty =
         AvaloniaProperty.Register<ReDock, IDataTemplate?>(nameof(RightContentTemplate));
+
+    public static readonly StyledProperty<double> RightWidthProportionProperty =
+        AvaloniaProperty.Register<ReDock, double>(nameof(RightWidthProportion), defaultValue: 1 / 4d);
+
+    private ContentPresenter? _leftPresenter;
+    private ContentPresenter? _rightPresenter;
+    private ContentPresenter? _presenter;
+    private Thumb? _leftThumb;
+    private Thumb? _rightThumb;
+
+    private const double ThumbPadding = 2;
 
     [DependsOn(nameof(LeftContentTemplate))]
     public object? LeftContent
@@ -44,6 +60,12 @@ public class ReDock : TemplatedControl
     {
         get => GetValue(LeftContentTemplateProperty);
         set => SetValue(LeftContentTemplateProperty, value);
+    }
+
+    public double LeftWidthProportion
+    {
+        get => GetValue(LeftWidthProportionProperty);
+        set => SetValue(LeftWidthProportionProperty, value);
     }
 
     [Content]
@@ -60,6 +82,12 @@ public class ReDock : TemplatedControl
         set => SetValue(ContentTemplateProperty, value);
     }
 
+    public double WidthProportion
+    {
+        get => GetValue(WidthProportionProperty);
+        set => SetValue(WidthProportionProperty, value);
+    }
+
     [DependsOn(nameof(RightContentTemplate))]
     public object? RightContent
     {
@@ -73,6 +101,12 @@ public class ReDock : TemplatedControl
         set => SetValue(RightContentTemplateProperty, value);
     }
 
+    public double RightWidthProportion
+    {
+        get => GetValue(RightWidthProportionProperty);
+        set => SetValue(RightWidthProportionProperty, value);
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -82,6 +116,12 @@ public class ReDock : TemplatedControl
             change.Property == RightContentProperty)
         {
             ContentChanged(change);
+        }
+        else if (change.Property == LeftWidthProportionProperty ||
+                 change.Property == WidthProportionProperty ||
+                 change.Property == RightWidthProportionProperty)
+        {
+            UpdateSize(Bounds.Size);
         }
     }
 
@@ -101,17 +141,130 @@ public class ReDock : TemplatedControl
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        var leftPresenter = e.NameScope.Get<ContentPresenter>("PART_LeftContentPresenter");
-        var leftSplitter = e.NameScope.Get<GridSplitter>("PART_LeftSplitter");
-        var rightPresenter = e.NameScope.Get<ContentPresenter>("PART_RightContentPresenter");
-        var rightSplitter = e.NameScope.Get<GridSplitter>("PART_RightSplitter");
+        _leftPresenter = e.NameScope.Get<ContentPresenter>("PART_LeftContentPresenter");
+        _rightPresenter = e.NameScope.Get<ContentPresenter>("PART_RightContentPresenter");
+        _presenter = e.NameScope.Get<ContentPresenter>("PART_ContentPresenter");
+        _leftThumb = e.NameScope.Get<Thumb>("PART_LeftThumb");
+        _rightThumb = e.NameScope.Get<Thumb>("PART_RightThumb");
 
-        var leftVisibilityObservable = leftPresenter.IsChildVisibleObservable();
-        var rightVisibilityObservable = rightPresenter.IsChildVisibleObservable();
-        leftSplitter.Bind(IsVisibleProperty, leftVisibilityObservable
-            .Do(v => leftPresenter.BorderThickness = new Thickness(0, 0, v ? 1 : 0, 0)));
+        var leftVisibilityObservable = _leftPresenter.IsChildVisibleObservable();
+        var rightVisibilityObservable = _rightPresenter.IsChildVisibleObservable();
+        _leftThumb.Bind(IsVisibleProperty, leftVisibilityObservable);
+        _rightThumb.Bind(IsVisibleProperty, rightVisibilityObservable);
+        leftVisibilityObservable.CombineLatest(rightVisibilityObservable)
+            .Subscribe(_ => UpdateSize(Bounds.Size));
 
-        rightSplitter.Bind(IsVisibleProperty, rightVisibilityObservable
-            .Do(v => rightPresenter.BorderThickness = new Thickness(v ? 1 : 0, 0, 0, 0)));
+        _leftThumb.DragDelta += OnLeftThumbDragDelta;
+        _rightThumb.DragDelta += OnRightThumbDragDelta;
+    }
+
+    private void OnLeftThumbDragDelta(object? sender, VectorEventArgs e)
+    {
+        if (_leftPresenter == null || _rightPresenter == null || _presenter == null)
+            return;
+
+        var size = Bounds.Size;
+        (double left, double center, double right) = GetAbsoluteWidth(size);
+        var delta = e.Vector.X;
+
+        left += delta;
+
+        if (left + 5 >= size.Width || left <= 5)
+            return;
+
+        var leftWidthProportion = left / size.Width;
+        var rightWidthProportion = right / size.Width;
+        var widthProportion = 1 - (leftWidthProportion + rightWidthProportion);
+        LeftWidthProportion = Math.Clamp(leftWidthProportion, 0, 1);
+        WidthProportion = Math.Clamp(widthProportion, 0, 1);
+        RightWidthProportion = Math.Clamp(rightWidthProportion, 0, 1);
+    }
+
+    private void OnRightThumbDragDelta(object? sender, VectorEventArgs e)
+    {
+        if (_leftPresenter == null || _rightPresenter == null || _presenter == null)
+            return;
+
+        var size = Bounds.Size;
+        (double left, _, double right) = GetAbsoluteWidth(size);
+        var delta = e.Vector.X;
+
+        right -= delta;
+
+        if (right + 5 >= size.Width || right <= 5)
+            return;
+
+        var leftWidthProportion = left / size.Width;
+        var rightWidthProportion = right / size.Width;
+        var widthProportion = 1 - (leftWidthProportion + rightWidthProportion);
+        LeftWidthProportion = Math.Clamp(leftWidthProportion, 0, 1);
+        WidthProportion = Math.Clamp(widthProportion, 0, 1);
+        RightWidthProportion = Math.Clamp(rightWidthProportion, 0, 1);
+    }
+
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
+        base.OnSizeChanged(e);
+        UpdateSize(e.NewSize);
+    }
+
+    private void UpdateSize(Size size)
+    {
+        if (_leftPresenter == null || _presenter == null || _rightPresenter == null ||
+            _leftThumb == null || _rightThumb == null)
+            return;
+
+        (double leftWidth, double centerWidth, double rightWidth) = GetAbsoluteWidth(size);
+        if (_leftPresenter.IsChildVisible() && _rightPresenter.IsChildVisible())
+        {
+            _leftPresenter.Margin = new Thickness(0, 0, 0, 0);
+            _leftPresenter.Width = leftWidth;
+
+            _leftThumb.Margin = new Thickness(leftWidth - ThumbPadding, 0, 0, 0);
+
+            _presenter.Margin = new Thickness(leftWidth + ThumbPadding, 0, 0, 0);
+            _presenter.Width = centerWidth - ThumbPadding * 2;
+
+            _rightThumb.Margin = new Thickness(leftWidth + centerWidth - ThumbPadding, 0, 0, 0);
+
+            _rightPresenter.Margin = new Thickness(leftWidth + centerWidth + ThumbPadding, 0, 0, 0);
+            _rightPresenter.Width = rightWidth - ThumbPadding;
+        }
+        else
+        {
+            if (_leftPresenter.IsChildVisible())
+            {
+                _leftPresenter.Margin = new Thickness(0, 0, 0, 0);
+                _leftPresenter.Width = leftWidth;
+
+                _leftThumb.Margin = new Thickness(leftWidth - ThumbPadding, 0, 0, 0);
+
+                _presenter.Margin = new Thickness(leftWidth + ThumbPadding, 0, 0, 0);
+                _presenter.Width = centerWidth - ThumbPadding + rightWidth;
+            }
+            else if (_rightPresenter.IsChildVisible())
+            {
+                _presenter.Margin = new Thickness(0, 0, 0, 0);
+                _presenter.Width = leftWidth + centerWidth - ThumbPadding;
+
+                _rightThumb.Margin = new Thickness(leftWidth + centerWidth - ThumbPadding, 0, 0, 0);
+
+                _rightPresenter.Margin = new Thickness(leftWidth + centerWidth + ThumbPadding, 0, 0, 0);
+                _rightPresenter.Width = rightWidth - ThumbPadding;
+            }
+            else
+            {
+                _presenter.Margin = new Thickness(0, 0, 0, 0);
+                _presenter.Width = size.Width;
+            }
+        }
+    }
+
+    private (double, double, double) GetAbsoluteWidth(Size availableSize)
+    {
+        var den = LeftWidthProportion + WidthProportion + RightWidthProportion;
+        return (availableSize.Width * LeftWidthProportion / den,
+            availableSize.Width * WidthProportion / den,
+            availableSize.Width * RightWidthProportion / den);
     }
 }

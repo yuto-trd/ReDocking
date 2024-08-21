@@ -38,6 +38,8 @@ public class HorizontallySplittedView : TemplatedControl
     private Thumb? _thumb;
     private Panel? _root;
 
+    private const double ThumbPadding = 2;
+
     [DependsOn(nameof(LeftContentTemplate))]
     public object? LeftContent
     {
@@ -134,12 +136,12 @@ public class HorizontallySplittedView : TemplatedControl
         var leftWidth = _leftPresenter.Width;
         var bottomHeight = _rightPresenter.Width;
         var delta = e.Vector.X;
-
-        if (leftWidth + delta < 0)
-            return;
+        var size = Bounds.Size;
 
         var newWidth = leftWidth + delta;
-        var size = Bounds.Size;
+        if (newWidth + 5 >= size.Width || newWidth <= 5)
+            return;
+
         var leftWidthProportion = newWidth / size.Width;
         var rightWidthProportion = 1 - leftWidthProportion;
         LeftWidthProportion = Math.Clamp(leftWidthProportion, 0, 1);
@@ -163,10 +165,10 @@ public class HorizontallySplittedView : TemplatedControl
             _leftPresenter.Margin = new Thickness(0, 0, 0, 0);
             _leftPresenter.Width = leftWidth;
 
-            _thumb.Margin = new Thickness(leftWidth - 2, 0, 0, 0);
+            _thumb.Margin = new Thickness(leftWidth - ThumbPadding, 0, 0, 0);
 
-            _rightPresenter.Margin = new Thickness(leftWidth + 2, 0, 0, 0);
-            _rightPresenter.Width = rightWidth - 2;
+            _rightPresenter.Margin = new Thickness(leftWidth + ThumbPadding, 0, 0, 0);
+            _rightPresenter.Width = rightWidth - ThumbPadding;
         }
         else
         {

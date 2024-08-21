@@ -3,7 +3,9 @@
                     xmlns:controls="using:ReDocking"
                     xmlns:ui="using:FluentAvalonia.UI.Controls">
     <Design.PreviewWith>
-        <controls:EdgeBarButton />
+        <Border Padding="16">
+            <controls:EdgeBarButton />
+        </Border>
     </Design.PreviewWith>
 
     <ControlTheme x:Key="{x:Type controls:EdgeBarButton}"

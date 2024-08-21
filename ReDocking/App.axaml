@@ -14,9 +14,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="EdgeBar.axaml" />
                 <MergeResourceInclude Source="EdgeBarButton.axaml" />
-                <MergeResourceInclude Source="ReDock.axaml" />
                 <MergeResourceInclude Source="VerticallySplittedView.axaml" />
                 <MergeResourceInclude Source="HorizontallySplittedView.axaml" />
+                <MergeResourceInclude Source="ReDock.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -38,6 +38,8 @@ public class VerticallySplittedView : TemplatedControl
     private Thumb? _thumb;
     private Panel? _root;
 
+    private const double ThumbPadding = 2;
+
     [DependsOn(nameof(TopContentTemplate))]
     public object? TopContent
     {
@@ -115,7 +117,7 @@ public class VerticallySplittedView : TemplatedControl
 
         var topVisibilityObservable = _topPresenter.IsChildVisibleObservable();
         var bottomVisibilityObservable = _bottomPresenter.IsChildVisibleObservable();
-        
+
         _thumb.Bind(IsVisibleProperty, topVisibilityObservable
             .CombineLatest(bottomVisibilityObservable, (left, right) => left && right));
 
@@ -134,12 +136,12 @@ public class VerticallySplittedView : TemplatedControl
         var topHeight = _topPresenter.Height;
         var bottomHeight = _bottomPresenter.Height;
         var delta = e.Vector.Y;
-
-        if (topHeight + delta < 0)
-            return;
+        var size = Bounds.Size;
 
         var newHeight = topHeight + delta;
-        var size = Bounds.Size;
+        if (newHeight + 5 >= size.Height || newHeight <= 5)
+            return;
+
         var topHeightProportion = newHeight / size.Height;
         var bottomHeightProportion = 1 - topHeightProportion;
         TopHeightProportion = Math.Clamp(topHeightProportion, 0, 1);
@@ -163,10 +165,10 @@ public class VerticallySplittedView : TemplatedControl
             _topPresenter.Margin = new Thickness(0, 0, 0, 0);
             _topPresenter.Height = topHeight;
 
-            _thumb.Margin = new Thickness(0, topHeight - 2, 0, 0);
+            _thumb.Margin = new Thickness(0, topHeight - ThumbPadding, 0, 0);
 
-            _bottomPresenter.Margin = new Thickness(0, topHeight + 2, 0, 0);
-            _bottomPresenter.Height = bottomHeight - 2;
+            _bottomPresenter.Margin = new Thickness(0, topHeight + ThumbPadding, 0, 0);
+            _bottomPresenter.Height = bottomHeight - ThumbPadding;
         }
         else
         {
