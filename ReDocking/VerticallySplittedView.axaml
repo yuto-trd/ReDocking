@@ -5,44 +5,45 @@
         <controls:VerticallySplittedView />
     </Design.PreviewWith>
 
+    <ControlTheme x:Key="VerticalSplittedViewThumb" TargetType="Thumb">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Height" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Cursor" Value="SizeNorthSouth" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}">
+                    <Border Height="1"
+                            Margin="0,2"
+                            Background="{DynamicResource EdgeDividerBrush}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
     <ControlTheme x:Key="{x:Type controls:VerticallySplittedView}" TargetType="controls:VerticallySplittedView">
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <!--  Separator  -->
-                        <RowDefinition Height="Auto" />
-                        <!--  Bottom Tool  -->
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
+                <Panel Name="PART_Root" Background="Transparent">
                     <ContentPresenter Name="PART_TopContentPresenter"
-                                      Grid.Row="0"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Top"
                                       HorizontalContentAlignment="Stretch"
                                       VerticalContentAlignment="Stretch"
-                                      controls:VisibilityChangedBehavior.GridLength="Auto"
-                                      controls:VisibilityChangedBehavior.Row="0"
                                       Content="{TemplateBinding TopContent}"
                                       ContentTemplate="{TemplateBinding TopContentTemplate}" />
 
-                    <GridSplitter Name="PART_Splitter"
-                                  Grid.Row="1"
-                                  Background="Transparent" />
-
-                    <!--  Bottom Tool  -->
                     <ContentPresenter Name="PART_BottomContentPresenter"
-                                      Grid.Row="1"
-                                      Grid.RowSpan="2"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Top"
                                       HorizontalContentAlignment="Stretch"
                                       VerticalContentAlignment="Stretch"
-                                      controls:VisibilityChangedBehavior.GridLength="*"
-                                      controls:VisibilityChangedBehavior.Row="2"
-                                      BorderBrush="{DynamicResource EdgeDividerBrush}"
-                                      BorderThickness="0,1,0,0"
                                       Content="{TemplateBinding BottomContent}"
                                       ContentTemplate="{TemplateBinding BottomContentTemplate}" />
-                </Grid>
+
+                    <Thumb Name="PART_Thumb" Theme="{StaticResource VerticalSplittedViewThumb}" />
+                </Panel>
             </ControlTemplate>
         </Setter>
     </ControlTheme>

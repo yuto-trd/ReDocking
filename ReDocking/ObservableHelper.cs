@@ -16,6 +16,12 @@ public static class ObservableHelper
             .Switch()
             .CombineLatest(
                 presenter.GetObservable(ContentPresenter.ContentProperty),
-                (x, y) => x && y != null);
+                (x, y) => x && y != null)
+            .DistinctUntilChanged();
+    }
+
+    public static bool IsChildVisible(this ContentPresenter presenter)
+    {
+        return presenter.Child?.IsVisible == true && presenter.Content != null;
     }
 }

@@ -65,9 +65,17 @@
                 <local:VerticallySplittedView>
                     <local:VerticallySplittedView.TopContent>
                         <local:ReDock LeftContent="{Binding SelectedLeftTopTool.Value}" RightContent="{Binding SelectedRightTopTool.Value}">
-                            <Border Width="600"
-                                    Height="337"
-                                    Background="Black" />
+                            <!--  <Border HorizontalAlignment="Stretch"  -->
+                            <!--  VerticalAlignment="Stretch"  -->
+                            <!--  BackgroundSizing="InnerBorderEdge"  -->
+                            <!--  BorderBrush="White"  -->
+                            <!--  BorderThickness="1">  -->
+                            <!--  <Border Width="600"  -->
+                            <!--  Height="337"  -->
+                            <!--  HorizontalAlignment="Center"  -->
+                            <!--  VerticalAlignment="Center"  -->
+                            <!--  Background="Black" />  -->
+                            <!-- </Border> -->
                         </local:ReDock>
                     </local:VerticallySplittedView.TopContent>
                     <local:VerticallySplittedView.BottomContent>
