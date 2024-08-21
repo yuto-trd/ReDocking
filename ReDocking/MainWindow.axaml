@@ -52,38 +52,71 @@
             </Button>
         </Grid>
         <Border Grid.Row="1" Background="{DynamicResource EdgeDividerBrush}" />
-        <Grid Grid.Row="2" ColumnDefinitions="40,*,40">
-            <local:EdgeBar BorderBrush="{DynamicResource EdgeDividerBrush}"
-                           BorderThickness="0,0,1,0"
-                           BottomToolsSource="{Binding LeftBottomTools}"
-                           ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
-                           ToolsSource="{Binding LeftTools}"
-                           TopToolsSource="{Binding LeftTopTools}" />
-            <local:ReDock Grid.Column="1"
-                          LeftContent="{Binding SelectedLeftTool.Value}"
-                          RightContent="{Binding SelectedRightTool.Value}">
-                <local:VerticallySplittedView>
-                    <local:VerticallySplittedView.TopContent>
-                        <local:ReDock LeftContent="{Binding SelectedLeftTopTool.Value}" RightContent="{Binding SelectedRightTopTool.Value}">
-                            <!--  <Border HorizontalAlignment="Stretch"  -->
-                            <!--  VerticalAlignment="Stretch"  -->
-                            <!--  BackgroundSizing="InnerBorderEdge"  -->
-                            <!--  BorderBrush="White"  -->
-                            <!--  BorderThickness="1">  -->
-                            <!--  <Border Width="600"  -->
-                            <!--  Height="337"  -->
-                            <!--  HorizontalAlignment="Center"  -->
-                            <!--  VerticalAlignment="Center"  -->
-                            <!--  Background="Black" />  -->
-                            <!-- </Border> -->
-                        </local:ReDock>
-                    </local:VerticallySplittedView.TopContent>
-                    <local:VerticallySplittedView.BottomContent>
-                        <local:HorizontallySplittedView LeftContent="{Binding SelectedLeftBottomTool.Value}" RightContent="{Binding SelectedRightBottomTool.Value}" />
-                    </local:VerticallySplittedView.BottomContent>
-                </local:VerticallySplittedView>
-            </local:ReDock>
-            <!--<Grid Grid.Column="1">
+        <local:ReDockHost Grid.Row="2">
+            <local:ReDockHost.DockAreas>
+                <local:DockArea LocalizedName="左"
+                                Location="Left"
+                                Target="LeftContent"
+                                View="LeftRightArea" />
+                <local:DockArea LocalizedName="右"
+                                Location="Right"
+                                Target="RightContent"
+                                View="LeftRightArea" />
+                <local:DockArea LocalizedName="左上"
+                                Location="TopLeft"
+                                Target="LeftContent"
+                                View="TopLeftRightArea" />
+                <local:DockArea LocalizedName="右上"
+                                Location="TopRight"
+                                Target="RightContent"
+                                View="TopLeftRightArea" />
+                <local:DockArea LocalizedName="左下"
+                                Location="BottomLeft"
+                                Target="LeftContent"
+                                View="BottomLeftRightArea" />
+                <local:DockArea LocalizedName="右下"
+                                Location="BottomRight"
+                                Target="RightContent"
+                                View="BottomLeftRightArea" />
+            </local:ReDockHost.DockAreas>
+            <Grid ColumnDefinitions="40,*,40">
+                <local:EdgeBar BorderBrush="{DynamicResource EdgeDividerBrush}"
+                               BorderThickness="0,0,1,0"
+                               BottomToolsSource="{Binding LeftBottomTools}"
+                               ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
+                               ToolsSource="{Binding LeftTools}"
+                               TopToolsSource="{Binding LeftTopTools}" />
+
+                <local:ReDock Name="LeftRightArea"
+                              Grid.Column="1"
+                              LeftContent="{Binding SelectedLeftTool.Value}"
+                              RightContent="{Binding SelectedRightTool.Value}">
+                    <local:VerticallySplittedView>
+                        <local:VerticallySplittedView.TopContent>
+                            <local:ReDock Name="TopLeftRightArea"
+                                          LeftContent="{Binding SelectedLeftTopTool.Value}"
+                                          RightContent="{Binding SelectedRightTopTool.Value}">
+                                <!--  <Border HorizontalAlignment="Stretch"  -->
+                                <!--  VerticalAlignment="Stretch"  -->
+                                <!--  BackgroundSizing="InnerBorderEdge"  -->
+                                <!--  BorderBrush="White"  -->
+                                <!--  BorderThickness="1">  -->
+                                <!--  <Border Width="600"  -->
+                                <!--  Height="337"  -->
+                                <!--  HorizontalAlignment="Center"  -->
+                                <!--  VerticalAlignment="Center"  -->
+                                <!--  Background="Black" />  -->
+                                <!-- </Border> -->
+                            </local:ReDock>
+                        </local:VerticallySplittedView.TopContent>
+                        <local:VerticallySplittedView.BottomContent>
+                            <local:HorizontallySplittedView Name="BottomLeftRightArea"
+                                                            LeftContent="{Binding SelectedLeftBottomTool.Value}"
+                                                            RightContent="{Binding SelectedRightBottomTool.Value}" />
+                        </local:VerticallySplittedView.BottomContent>
+                    </local:VerticallySplittedView>
+                </local:ReDock>
+                <!--<Grid Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -187,13 +220,14 @@
                     </Grid>
                 </Grid>
             </Grid>-->
-            <local:EdgeBar Grid.Column="2"
-                           BorderBrush="{DynamicResource EdgeDividerBrush}"
-                           BorderThickness="1,0,0,0"
-                           BottomToolsSource="{Binding RightBottomTools}"
-                           ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
-                           ToolsSource="{Binding RightTools}"
-                           TopToolsSource="{Binding RightTopTools}" />
-        </Grid>
+                <local:EdgeBar Grid.Column="2"
+                               BorderBrush="{DynamicResource EdgeDividerBrush}"
+                               BorderThickness="1,0,0,0"
+                               BottomToolsSource="{Binding RightBottomTools}"
+                               ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
+                               ToolsSource="{Binding RightTools}"
+                               TopToolsSource="{Binding RightTopTools}" />
+            </Grid>
+        </local:ReDockHost>
     </Grid>
 </Window>
