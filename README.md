@@ -1,1 +1,3 @@
 # ReDocking
+
+JetBrains IDEのようなドッキングUIライブラリ
