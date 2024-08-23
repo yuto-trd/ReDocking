@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 
 using FluentAvalonia.UI.Controls;
@@ -20,6 +21,27 @@ public class EdgeBarButton : ToggleButton
     {
         get => GetValue(IconSourceProperty);
         set => SetValue(IconSourceProperty, value);
+    }
+
+    internal EdgeBarButtonLocation? Location { get; set; }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        var itemsControl = this.FindAncestorOfType<ItemsControl>();
+        Location = itemsControl?.Name switch
+        {
+            "PART_TopTools" => EdgeBarButtonLocation.Top,
+            "PART_Tools" => EdgeBarButtonLocation.Middle,
+            "PART_BottomTools" => EdgeBarButtonLocation.Bottom,
+            _ => null
+        };
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        Location = null;
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)

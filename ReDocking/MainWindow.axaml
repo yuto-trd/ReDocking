@@ -83,6 +83,7 @@
                 <local:EdgeBar BorderBrush="{DynamicResource EdgeDividerBrush}"
                                BorderThickness="0,0,1,0"
                                BottomToolsSource="{Binding LeftBottomTools}"
+                               ButtonDrop="OnEdgeBarButtonDrop"
                                ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
                                ToolsSource="{Binding LeftTools}"
                                TopToolsSource="{Binding LeftTopTools}" />
@@ -224,6 +225,7 @@
                                BorderBrush="{DynamicResource EdgeDividerBrush}"
                                BorderThickness="1,0,0,0"
                                BottomToolsSource="{Binding RightBottomTools}"
+                               ButtonDrop="OnEdgeBarButtonDrop"
                                ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
                                ToolsSource="{Binding RightTools}"
                                TopToolsSource="{Binding RightTopTools}" />

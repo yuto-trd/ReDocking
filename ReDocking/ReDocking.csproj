@@ -20,10 +20,7 @@
         <PackageReference Include="Avalonia.Xaml.Interactivity" Version="11.1.0" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.1.0" />
         <PackageReference Include="LucideAvalonia" Version="1.5.0" />
-        <PackageReference Include="ObservableCollections" Version="2.2.0" />
-        <PackageReference Include="ObservableCollections.R3" Version="2.2.0" />
-        <PackageReference Include="R3" Version="1.2.7" />
-        <PackageReference Include="R3Extensions.Avalonia" Version="1.2.7" />
+        <PackageReference Include="ReactiveProperty" Version="9.6.0" />
     </ItemGroup>
 
     <ItemGroup>

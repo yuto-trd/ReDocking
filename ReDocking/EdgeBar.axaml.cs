@@ -11,9 +11,35 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
+using Avalonia.VisualTree;
 
 namespace ReDocking;
+
+public enum EdgeBarButtonLocation
+{
+    Top,
+    Middle,
+    Bottom
+}
+
+public class ButtonDropEventArgs(RoutedEvent? routedEvent, object? source) : RoutedEventArgs(routedEvent, source)
+{
+    public required object? Item { get; init; }
+
+    public required EdgeBarButton Button { get; init; }
+
+    public required EdgeBar SourceEdgeBar { get; init; }
+
+    public required EdgeBarButtonLocation SourceLocation { get; init; }
+
+    public required EdgeBar DestinationEdgeBar { get; init; }
+
+    public required EdgeBarButtonLocation DestinationLocation { get; init; }
+
+    public required int DestinationIndex { get; init; }
+}
 
 public class EdgeBar : TemplatedControl
 {
@@ -28,6 +54,9 @@ public class EdgeBar : TemplatedControl
 
     public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
         AvaloniaProperty.Register<EdgeBar, IDataTemplate>(nameof(ItemTemplate));
+
+    public static readonly RoutedEvent<ButtonDropEventArgs> ButtonDropEvent =
+        RoutedEvent.Register<EdgeBar, ButtonDropEventArgs>("ButtonDrop", RoutingStrategies.Bubble);
 
     private ItemsControl? _topTools;
     private ItemsControl? _tools;
@@ -70,6 +99,12 @@ public class EdgeBar : TemplatedControl
         set => SetValue(BottomToolsSourceProperty, value);
     }
 
+    public event EventHandler<ButtonDropEventArgs> ButtonDrop
+    {
+        add => AddHandler(ButtonDropEvent, value);
+        remove => RemoveHandler(ButtonDropEvent, value);
+    }
+
     internal void SetGridHitTestVisible(bool value)
     {
         if (_grid == null) return;
@@ -87,7 +122,55 @@ public class EdgeBar : TemplatedControl
 
     private void OnDrop(object? sender, DragEventArgs e)
     {
+        var position = this.PointToScreen(e.GetPosition(this));
+        (EdgeBarButtonLocation location, int index) = DetermineLocation(position);
         OnDragLeave(sender, e);
+
+        if (!e.Data.Contains("EdgeBarButton") ||
+            e.Data.Get("EdgeBarButton") is not EdgeBarButton { Location: not null } button) return;
+
+        if (index < 0) return;
+
+        var edgeBar = button.FindAncestorOfType<EdgeBar>();
+        if (edgeBar == null) return;
+
+        var args = new ButtonDropEventArgs(ButtonDropEvent, this)
+        {
+            Item = button.DataContext,
+            Button = button,
+            SourceEdgeBar = edgeBar,
+            SourceLocation = button.Location.Value,
+            DestinationEdgeBar = this,
+            DestinationLocation = location,
+            DestinationIndex = index
+        };
+        RaiseEvent(args);
+
+        if (args.Handled) return;
+
+        var newItemsSource = location switch
+        {
+            EdgeBarButtonLocation.Top => TopToolsSource,
+            EdgeBarButtonLocation.Middle => ToolsSource,
+            EdgeBarButtonLocation.Bottom => BottomToolsSource,
+            _ => throw new InvalidOperationException()
+        };
+
+        var itemsControl = button.FindAncestorOfType<ItemsControl>();
+        var items = itemsControl?.ItemsSource;
+        if (items is not IList oldSource) return;
+        if (newItemsSource is not IList newSource) return;
+
+        if (oldSource.Contains(button.DataContext))
+        {
+            oldSource.Remove(button.DataContext);
+            newSource.Insert(index, button.DataContext);
+        }
+        else if (oldSource.Contains(button))
+        {
+            oldSource.Remove(button);
+            newSource.Insert(index, button);
+        }
     }
 
     private void OnDragLeave(object? sender, DragEventArgs e)
@@ -108,6 +191,8 @@ public class EdgeBar : TemplatedControl
             }
 
             _topTools.Margin = default;
+            _tools.Margin = default;
+            _bottomTools.Margin = default;
 
             if (_dragGhost != null && _layer != null)
             {
@@ -135,7 +220,74 @@ public class EdgeBar : TemplatedControl
                 .Where(i => i is not null)
                 .ToObservable()
                 .Subscribe(i => ToolTip.SetServiceEnabled(i, false));
+
+            OnDragOver(sender, e);
         }
+    }
+
+    private (EdgeBarButtonLocation, int) DetermineLocation(PixelPoint position)
+    {
+        if (_topTools == null || _tools == null || _bottomTools == null)
+            return (EdgeBarButtonLocation.Middle, -1);
+
+        Point clientPosition;
+
+        for (int i = 0; i < _topTools.ItemCount; i++)
+        {
+            Control? item = _topTools.ContainerFromIndex(i);
+            if (item?.IsVisible != true) continue;
+
+            clientPosition = item.PointToClient(position);
+            if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
+            {
+                return (EdgeBarButtonLocation.Top, i);
+            }
+        }
+
+        clientPosition = _topTools.PointToClient(position);
+        if (clientPosition.Y < _topTools.Bounds.Height + 8)
+        {
+            return (EdgeBarButtonLocation.Top, _topTools.ItemCount);
+        }
+
+        for (int i = 0; i < _tools.ItemCount; i++)
+        {
+            Control? item = _tools.ContainerFromIndex(i);
+            if (item?.IsVisible != true) continue;
+
+            clientPosition = item.PointToClient(position);
+            if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
+            {
+                return (EdgeBarButtonLocation.Middle, i);
+            }
+        }
+
+        clientPosition = _tools.PointToClient(position);
+        if (clientPosition.Y < _tools.Bounds.Height + 8)
+        {
+            return (EdgeBarButtonLocation.Middle, _tools.ItemCount);
+        }
+
+        for (int i = _bottomTools.ItemCount - 1; i >= 0; i--)
+        {
+            Control? item = _bottomTools.ContainerFromIndex(i);
+            if (item?.IsVisible != true) continue;
+
+            clientPosition = item.PointToClient(position);
+            if (clientPosition.Y > item.Bounds.Height / 2)
+            {
+                return (EdgeBarButtonLocation.Bottom, i);
+            }
+        }
+
+
+        clientPosition = _bottomTools.PointToClient(position);
+        if (clientPosition.Y < _bottomTools.Bounds.Height + 8)
+        {
+            return (EdgeBarButtonLocation.Bottom, 0);
+        }
+
+        return (EdgeBarButtonLocation.Middle, -1);
     }
 
     private void OnDragOver(object? sender, DragEventArgs e)

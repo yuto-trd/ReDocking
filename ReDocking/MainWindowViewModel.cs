@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using Avalonia.Reactive;
-using Avalonia.Reactive.Operators;
-using ObservableCollections;
-using R3;
+using System.Reactive.Linq;
+
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace ReDocking;
 
@@ -11,21 +11,26 @@ public class MainWindowViewModel : IDisposable
 {
     public MainWindowViewModel()
     {
-        void ConfigureToolsList(ObservableList<ToolWindowViewModel> list,
-            BindableReactiveProperty<ToolWindowViewModel?> selected)
+        void ConfigureToolsList(ReactiveCollection<ToolWindowViewModel> list,
+            ReactiveProperty<ToolWindowViewModel?> selected)
         {
-            list.ObserveAdd()
-                .Select(x => x.Value.IsSelected.Select(y => (x.Value, y)))
-                .Switch()
-                .Subscribe(z => selected.Value = z.y ? z.Item1 : null);
-
-            list.ObserveRemove()
-                .Subscribe(x => x.Value.Dispose());
-
             selected.Subscribe(x =>
                 list.ToObservable()
                     .Where(y => y != x)
                     .Subscribe(y => y.IsSelected.Value = false));
+
+            list.ObserveAddChanged()
+                .Select(x => x.IsSelected.Select(y => (x, y)))
+                .Subscribe(z =>
+                {
+                    z.Subscribe(w =>
+                    {
+                        selected.Value = w.y ? w.x : list.FirstOrDefault(xx => xx.IsSelected.Value);
+                    });
+                });
+
+            list.ObserveRemoveChanged()
+                .Subscribe(x => x.Dispose());
         }
 
         ConfigureToolsList(LeftTopTools, SelectedLeftTopTool);
@@ -46,29 +51,29 @@ public class MainWindowViewModel : IDisposable
         RightBottomTools.Add(new ToolWindowViewModel("Path Editor 2", "\uedfb"));
     }
 
-    public ObservableList<ToolWindowViewModel> LeftTopTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftTopTools { get; } = [];
 
-    public BindableReactiveProperty<ToolWindowViewModel?> SelectedLeftTopTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftTopTool { get; } = new();
 
-    public ObservableList<ToolWindowViewModel> LeftTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftTools { get; } = [];
 
-    public BindableReactiveProperty<ToolWindowViewModel?> SelectedLeftTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftTool { get; } = new();
 
-    public ObservableList<ToolWindowViewModel> LeftBottomTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftBottomTools { get; } = [];
 
-    public BindableReactiveProperty<ToolWindowViewModel?> SelectedLeftBottomTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftBottomTool { get; } = new();
 
-    public ObservableList<ToolWindowViewModel> RightTopTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> RightTopTools { get; } = [];
 
-    public BindableReactiveProperty<ToolWindowViewModel?> SelectedRightTopTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightTopTool { get; } = new();
 
-    public ObservableList<ToolWindowViewModel> RightTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> RightTools { get; } = [];
 
-    public BindableReactiveProperty<ToolWindowViewModel?> SelectedRightTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightTool { get; } = new();
 
-    public ObservableList<ToolWindowViewModel> RightBottomTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> RightBottomTools { get; } = [];
 
-    public BindableReactiveProperty<ToolWindowViewModel?> SelectedRightBottomTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightBottomTool { get; } = new();
 
     public void Dispose()
     {
@@ -89,13 +94,13 @@ public class ToolWindowViewModel : IDisposable
         Icon.Value = icon;
     }
 
-    public BindableReactiveProperty<string> Icon { get; } = new();
+    public ReactiveProperty<string> Icon { get; } = new();
 
-    public BindableReactiveProperty<string> Name { get; } = new();
+    public ReactiveProperty<string> Name { get; } = new();
 
-    public BindableReactiveProperty<object> Content { get; } = new();
+    public ReactiveProperty<object> Content { get; } = new();
 
-    public BindableReactiveProperty<bool> IsSelected { get; } = new(false);
+    public ReactiveProperty<bool> IsSelected { get; } = new(false);
 
     public void Dispose()
     {
