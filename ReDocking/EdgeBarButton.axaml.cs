@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.VisualTree;
@@ -43,6 +44,10 @@ public class EdgeBarButton : ToggleButton
             edgeBar?.SetGridHitTestVisible(false);
             ToolTip.SetServiceEnabled(this, false);
             IsVisible = false;
+            if (Parent is ContentPresenter cp)
+            {
+                cp.IsVisible = false;
+            }
 
             var data = new DataObject();
             data.Set("EdgeBarButton", this);
@@ -50,6 +55,10 @@ public class EdgeBarButton : ToggleButton
             edgeBar?.SetGridHitTestVisible(true);
             ToolTip.SetServiceEnabled(this, true);
             IsVisible = true;
+            if (Parent is ContentPresenter cp2)
+            {
+                cp2.IsVisible = true;
+            }
         }
     }
 }

@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
@@ -99,6 +101,10 @@ public class EdgeBar : TemplatedControl
                          .Concat(_bottomTools.GetRealizedContainers()))
             {
                 item.Margin = default;
+                if (item is ContentPresenter { Child: { } child })
+                {
+                    ToolTip.SetServiceEnabled(child, true);
+                }
             }
 
             _topTools.Margin = default;
@@ -120,6 +126,15 @@ public class EdgeBar : TemplatedControl
             _dragGhost = new EdgeBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
             _layer = AdornerLayer.GetAdornerLayer(this);
             _layer?.Children.Add(_dragGhost);
+
+            _topTools.GetRealizedContainers()
+                .Concat(_tools.GetRealizedContainers())
+                .Concat(_bottomTools.GetRealizedContainers())
+                .OfType<ContentPresenter>()
+                .Select(i => i.Child)
+                .Where(i => i is not null)
+                .ToObservable()
+                .Subscribe(i => ToolTip.SetServiceEnabled(i, false));
         }
     }
 
@@ -134,10 +149,12 @@ public class EdgeBar : TemplatedControl
             bool handled = false;
             double pad = 0;
 
+            int topToolsVisibleItemsCount = 0;
             for (int i = 0; i < _topTools.ItemCount; i++)
             {
                 Control? item = _topTools.ContainerFromIndex(i);
                 if (item?.IsVisible != true) continue;
+                topToolsVisibleItemsCount++;
 
                 clientPosition = item.PointToClient(position);
                 if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
@@ -158,9 +175,20 @@ public class EdgeBar : TemplatedControl
             clientPosition = _topTools.PointToClient(position);
             if (clientPosition.Y < _topTools.Bounds.Height + 8 && !handled)
             {
-                var ghostPos = _layer.PointToClient(_topTools.PointToScreen(new(0, _topTools.Bounds.Height + 8 - pad)));
-                _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
-                _topTools.Margin = new Thickness(0, 0, 0, 40);
+                if (topToolsVisibleItemsCount == 0)
+                {
+                    var ghostPos = _layer.PointToClient(_topTools.PointToScreen(new(0, _topTools.Bounds.Height - pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
+                    _topTools.Margin = new Thickness(0, 0, 0, 32);
+                }
+                else
+                {
+                    var ghostPos =
+                        _layer.PointToClient(_topTools.PointToScreen(new(0, _topTools.Bounds.Height + 8 - pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
+                    _topTools.Margin = new Thickness(0, 0, 0, 40);
+                }
+
                 handled = true;
             }
             else
@@ -169,10 +197,12 @@ public class EdgeBar : TemplatedControl
                 _topTools.Margin = default;
             }
 
+            int toolsVisibleItemsCount = 0;
             for (int i = 0; i < _tools.ItemCount; i++)
             {
                 Control? item = _tools.ContainerFromIndex(i);
                 if (item?.IsVisible != true) continue;
+                toolsVisibleItemsCount++;
 
                 clientPosition = item.PointToClient(position);
                 if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
@@ -193,9 +223,19 @@ public class EdgeBar : TemplatedControl
             clientPosition = _tools.PointToClient(position);
             if (clientPosition.Y < _tools.Bounds.Height + 8 && !handled)
             {
-                var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height + 8 - pad)));
-                _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
-                _tools.Margin = new Thickness(0, 0, 0, 40);
+                if (toolsVisibleItemsCount == 0)
+                {
+                    var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height - pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
+                    _tools.Margin = new Thickness(0, 0, 0, 32);
+                }
+                else
+                {
+                    var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height + 8 - pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
+                    _tools.Margin = new Thickness(0, 0, 0, 40);
+                }
+
                 handled = true;
             }
             else
@@ -204,10 +244,12 @@ public class EdgeBar : TemplatedControl
             }
 
             pad = 0;
+            int bottomToolsVisibleItemsCount = 0;
             for (int i = _bottomTools.ItemCount - 1; i >= 0; i--)
             {
                 Control? item = _bottomTools.ContainerFromIndex(i);
                 if (item?.IsVisible != true) continue;
+                bottomToolsVisibleItemsCount++;
 
                 clientPosition = item.PointToClient(position);
                 if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
@@ -228,10 +270,21 @@ public class EdgeBar : TemplatedControl
             clientPosition = _bottomTools.PointToClient(position);
             if (clientPosition.Y < _bottomTools.Bounds.Height + 8 && !handled)
             {
-                var ghostPos =
-                    _layer.PointToClient(_bottomTools.PointToScreen(new(0, -8 + pad)));
-                _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
-                _bottomTools.Margin = new Thickness(0, 40, 0, 0);
+                if (bottomToolsVisibleItemsCount == 0)
+                {
+                    var ghostPos =
+                        _layer.PointToClient(_bottomTools.PointToScreen(new(0, pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
+                    _bottomTools.Margin = new Thickness(0, 32, 0, 0);
+                }
+                else
+                {
+                    var ghostPos =
+                        _layer.PointToClient(_bottomTools.PointToScreen(new(0, -8 + pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
+                    _bottomTools.Margin = new Thickness(0, 40, 0, 0);
+                }
+
                 handled = true;
             }
             else
