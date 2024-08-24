@@ -24,6 +24,12 @@ public enum EdgeBarButtonLocation
     Bottom
 }
 
+public enum EdgeBarLocation
+{
+    Left,
+    Right
+}
+
 public class ButtonDropEventArgs(RoutedEvent? routedEvent, object? source) : RoutedEventArgs(routedEvent, source)
 {
     public required object? Item { get; init; }
@@ -54,6 +60,9 @@ public class EdgeBar : TemplatedControl
 
     public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
         AvaloniaProperty.Register<EdgeBar, IDataTemplate>(nameof(ItemTemplate));
+
+    public static readonly StyledProperty<EdgeBarLocation> LocationProperty =
+        AvaloniaProperty.Register<EdgeBar, EdgeBarLocation>(nameof(Location));
 
     public static readonly RoutedEvent<ButtonDropEventArgs> ButtonDropEvent =
         RoutedEvent.Register<EdgeBar, ButtonDropEventArgs>("ButtonDrop", RoutingStrategies.Bubble);
@@ -97,6 +106,12 @@ public class EdgeBar : TemplatedControl
     {
         get => GetValue(BottomToolsSourceProperty);
         set => SetValue(BottomToolsSourceProperty, value);
+    }
+
+    public EdgeBarLocation Location
+    {
+        get => GetValue(LocationProperty);
+        set => SetValue(LocationProperty, value);
     }
 
     public event EventHandler<ButtonDropEventArgs> ButtonDrop

@@ -85,6 +85,7 @@
                                BottomToolsSource="{Binding LeftBottomTools}"
                                ButtonDrop="OnEdgeBarButtonDrop"
                                ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
+                               Location="Left"
                                ToolsSource="{Binding LeftTools}"
                                TopToolsSource="{Binding LeftTopTools}" />
 
@@ -227,6 +228,7 @@
                                BottomToolsSource="{Binding RightBottomTools}"
                                ButtonDrop="OnEdgeBarButtonDrop"
                                ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
+                               Location="Right"
                                ToolsSource="{Binding RightTools}"
                                TopToolsSource="{Binding RightTopTools}" />
             </Grid>

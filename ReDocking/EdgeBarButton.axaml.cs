@@ -25,6 +25,8 @@ public class EdgeBarButton : ToggleButton
 
     internal EdgeBarButtonLocation? Location { get; set; }
 
+    internal EdgeBarLocation? EdgeBarLocation { get; set; }
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
@@ -36,6 +38,8 @@ public class EdgeBarButton : ToggleButton
             "PART_BottomTools" => EdgeBarButtonLocation.Bottom,
             _ => null
         };
+        var edgeBar = this.FindAncestorOfType<EdgeBar>();
+        EdgeBarLocation = edgeBar?.Location;
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
