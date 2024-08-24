@@ -30,16 +30,28 @@
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
             </ControlTheme>
-            <DataTemplate x:Key="EdgeButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
-                <local:EdgeBarButton IsChecked="{Binding IsSelected.Value}" ToolTip.Tip="{Binding Name.Value}">
+            <DataTemplate x:Key="LeftEdgeButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
+                <local:EdgeBarButton IsChecked="{Binding IsSelected.Value}"
+                                     ToolTip.Placement="Right"
+                                     ToolTip.ShowDelay="200"
+                                     ToolTip.Tip="{Binding Name.Value}"
+                                     ToolTip.VerticalOffset="0">
                     <local:EdgeBarButton.IconSource>
                         <ui:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
                     </local:EdgeBarButton.IconSource>
                 </local:EdgeBarButton>
             </DataTemplate>
-            <ItemsPanelTemplate x:Key="EdgeButtonItemsPanelTemplate">
-                <StackPanel Spacing="8" />
-            </ItemsPanelTemplate>
+            <DataTemplate x:Key="RightEdgeButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
+                <local:EdgeBarButton IsChecked="{Binding IsSelected.Value}"
+                                     ToolTip.Placement="Left"
+                                     ToolTip.ShowDelay="200"
+                                     ToolTip.Tip="{Binding Name.Value}"
+                                     ToolTip.VerticalOffset="0">
+                    <local:EdgeBarButton.IconSource>
+                        <ui:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
+                    </local:EdgeBarButton.IconSource>
+                </local:EdgeBarButton>
+            </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
     <Grid RowDefinitions="40,1,*">
@@ -52,39 +64,45 @@
             </Button>
         </Grid>
         <Border Grid.Row="1" Background="{DynamicResource EdgeDividerBrush}" />
-        <local:ReDockHost Grid.Row="2">
+        <local:ReDockHost Grid.Row="2" ButtonMove="OnEdgeBarButtonDrop">
             <local:ReDockHost.DockAreas>
-                <local:DockArea LocalizedName="左"
+                <local:DockArea EdgeBar="LeftEdgeBar"
+                                LocalizedName="左"
                                 Location="Left"
                                 Target="LeftContent"
                                 View="LeftRightArea" />
-                <local:DockArea LocalizedName="右"
+                <local:DockArea EdgeBar="RightEdgeBar"
+                                LocalizedName="右"
                                 Location="Right"
                                 Target="RightContent"
                                 View="LeftRightArea" />
-                <local:DockArea LocalizedName="左上"
+                <local:DockArea EdgeBar="LeftEdgeBar"
+                                LocalizedName="左上"
                                 Location="TopLeft"
                                 Target="LeftContent"
                                 View="TopLeftRightArea" />
-                <local:DockArea LocalizedName="右上"
+                <local:DockArea EdgeBar="RightEdgeBar"
+                                LocalizedName="右上"
                                 Location="TopRight"
                                 Target="RightContent"
                                 View="TopLeftRightArea" />
-                <local:DockArea LocalizedName="左下"
+                <local:DockArea EdgeBar="LeftEdgeBar"
+                                LocalizedName="左下"
                                 Location="BottomLeft"
                                 Target="LeftContent"
                                 View="BottomLeftRightArea" />
-                <local:DockArea LocalizedName="右下"
+                <local:DockArea EdgeBar="RightEdgeBar"
+                                LocalizedName="右下"
                                 Location="BottomRight"
                                 Target="RightContent"
                                 View="BottomLeftRightArea" />
             </local:ReDockHost.DockAreas>
             <Grid ColumnDefinitions="40,*,40">
-                <local:EdgeBar BorderBrush="{DynamicResource EdgeDividerBrush}"
+                <local:EdgeBar Name="LeftEdgeBar"
+                               BorderBrush="{DynamicResource EdgeDividerBrush}"
                                BorderThickness="0,0,1,0"
                                BottomToolsSource="{Binding LeftBottomTools}"
-                               ButtonDrop="OnEdgeBarButtonDrop"
-                               ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
+                               ItemTemplate="{StaticResource LeftEdgeButtonDataTemplate}"
                                Location="Left"
                                ToolsSource="{Binding LeftTools}"
                                TopToolsSource="{Binding LeftTopTools}" />
@@ -118,12 +136,12 @@
                         </local:VerticallySplittedView.BottomContent>
                     </local:VerticallySplittedView>
                 </local:ReDock>
-                <local:EdgeBar Grid.Column="2"
+                <local:EdgeBar Name="RightEdgeBar"
+                               Grid.Column="2"
                                BorderBrush="{DynamicResource EdgeDividerBrush}"
                                BorderThickness="1,0,0,0"
                                BottomToolsSource="{Binding RightBottomTools}"
-                               ButtonDrop="OnEdgeBarButtonDrop"
-                               ItemTemplate="{StaticResource EdgeButtonDataTemplate}"
+                               ItemTemplate="{StaticResource RightEdgeButtonDataTemplate}"
                                Location="Right"
                                ToolsSource="{Binding RightTools}"
                                TopToolsSource="{Binding RightTopTools}" />

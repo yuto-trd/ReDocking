@@ -1,51 +1,18 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
 
 namespace ReDocking;
-
-public enum EdgeBarButtonLocation
-{
-    Top,
-    Middle,
-    Bottom
-}
-
-public enum EdgeBarLocation
-{
-    Left,
-    Right
-}
-
-public class ButtonDropEventArgs(RoutedEvent? routedEvent, object? source) : RoutedEventArgs(routedEvent, source)
-{
-    public required object? Item { get; init; }
-
-    public required EdgeBarButton Button { get; init; }
-
-    public required EdgeBar SourceEdgeBar { get; init; }
-
-    public required EdgeBarButtonLocation SourceLocation { get; init; }
-
-    public required EdgeBar DestinationEdgeBar { get; init; }
-
-    public required EdgeBarButtonLocation DestinationLocation { get; init; }
-
-    public required int DestinationIndex { get; init; }
-}
 
 public class EdgeBar : TemplatedControl
 {
@@ -61,11 +28,8 @@ public class EdgeBar : TemplatedControl
     public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
         AvaloniaProperty.Register<EdgeBar, IDataTemplate>(nameof(ItemTemplate));
 
-    public static readonly StyledProperty<EdgeBarLocation> LocationProperty =
-        AvaloniaProperty.Register<EdgeBar, EdgeBarLocation>(nameof(Location));
-
-    public static readonly RoutedEvent<ButtonDropEventArgs> ButtonDropEvent =
-        RoutedEvent.Register<EdgeBar, ButtonDropEventArgs>("ButtonDrop", RoutingStrategies.Bubble);
+    public static readonly StyledProperty<DockAreaLocation> LocationProperty =
+        AvaloniaProperty.Register<EdgeBar, DockAreaLocation>(nameof(Location));
 
     private ItemsControl? _topTools;
     private ItemsControl? _tools;
@@ -108,16 +72,10 @@ public class EdgeBar : TemplatedControl
         set => SetValue(BottomToolsSourceProperty, value);
     }
 
-    public EdgeBarLocation Location
+    public DockAreaLocation Location
     {
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
-    }
-
-    public event EventHandler<ButtonDropEventArgs> ButtonDrop
-    {
-        add => AddHandler(ButtonDropEvent, value);
-        remove => RemoveHandler(ButtonDropEvent, value);
     }
 
     internal void SetGridHitTestVisible(bool value)
@@ -138,25 +96,25 @@ public class EdgeBar : TemplatedControl
     private void OnDrop(object? sender, DragEventArgs e)
     {
         var position = this.PointToScreen(e.GetPosition(this));
-        (EdgeBarButtonLocation location, int index) = DetermineLocation(position);
+        (DockAreaLocation location, int index) = DetermineLocation(position);
         OnDragLeave(sender, e);
 
         if (!e.Data.Contains("EdgeBarButton") ||
-            e.Data.Get("EdgeBarButton") is not EdgeBarButton { Location: not null } button) return;
+            e.Data.Get("EdgeBarButton") is not EdgeBarButton { DockLocation: not null } button) return;
 
         if (index < 0) return;
 
         var edgeBar = button.FindAncestorOfType<EdgeBar>();
         if (edgeBar == null) return;
 
-        var args = new ButtonDropEventArgs(ButtonDropEvent, this)
+        var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
         {
             Item = button.DataContext,
             Button = button,
             SourceEdgeBar = edgeBar,
-            SourceLocation = button.Location.Value,
+            SourceLocation = button.DockLocation.Value,
             DestinationEdgeBar = this,
-            DestinationLocation = location,
+            DestinationLocation = location | Location,
             DestinationIndex = index
         };
         RaiseEvent(args);
@@ -165,10 +123,9 @@ public class EdgeBar : TemplatedControl
 
         var newItemsSource = location switch
         {
-            EdgeBarButtonLocation.Top => TopToolsSource,
-            EdgeBarButtonLocation.Middle => ToolsSource,
-            EdgeBarButtonLocation.Bottom => BottomToolsSource,
-            _ => throw new InvalidOperationException()
+            DockAreaLocation.Top => TopToolsSource,
+            DockAreaLocation.Bottom => BottomToolsSource,
+            _ => ToolsSource,
         };
 
         var itemsControl = button.FindAncestorOfType<ItemsControl>();
@@ -240,10 +197,10 @@ public class EdgeBar : TemplatedControl
         }
     }
 
-    private (EdgeBarButtonLocation, int) DetermineLocation(PixelPoint position)
+    private (DockAreaLocation, int) DetermineLocation(PixelPoint position)
     {
         if (_topTools == null || _tools == null || _bottomTools == null)
-            return (EdgeBarButtonLocation.Middle, -1);
+            return (default, -1);
 
         Point clientPosition;
 
@@ -255,14 +212,14 @@ public class EdgeBar : TemplatedControl
             clientPosition = item.PointToClient(position);
             if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
             {
-                return (EdgeBarButtonLocation.Top, i);
+                return (DockAreaLocation.Top, i);
             }
         }
 
         clientPosition = _topTools.PointToClient(position);
         if (clientPosition.Y < _topTools.Bounds.Height + 8)
         {
-            return (EdgeBarButtonLocation.Top, _topTools.ItemCount);
+            return (DockAreaLocation.Top, _topTools.ItemCount);
         }
 
         for (int i = 0; i < _tools.ItemCount; i++)
@@ -273,14 +230,14 @@ public class EdgeBar : TemplatedControl
             clientPosition = item.PointToClient(position);
             if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
             {
-                return (EdgeBarButtonLocation.Middle, i);
+                return (default, i);
             }
         }
 
         clientPosition = _tools.PointToClient(position);
         if (clientPosition.Y < _tools.Bounds.Height + 8)
         {
-            return (EdgeBarButtonLocation.Middle, _tools.ItemCount);
+            return (default, _tools.ItemCount);
         }
 
         for (int i = _bottomTools.ItemCount - 1; i >= 0; i--)
@@ -291,7 +248,7 @@ public class EdgeBar : TemplatedControl
             clientPosition = item.PointToClient(position);
             if (clientPosition.Y > item.Bounds.Height / 2)
             {
-                return (EdgeBarButtonLocation.Bottom, i);
+                return (DockAreaLocation.Bottom, i);
             }
         }
 
@@ -299,10 +256,10 @@ public class EdgeBar : TemplatedControl
         clientPosition = _bottomTools.PointToClient(position);
         if (clientPosition.Y < _bottomTools.Bounds.Height + 8)
         {
-            return (EdgeBarButtonLocation.Bottom, 0);
+            return (DockAreaLocation.Bottom, 0);
         }
 
-        return (EdgeBarButtonLocation.Middle, -1);
+        return (default, -1);
     }
 
     private void OnDragOver(object? sender, DragEventArgs e)

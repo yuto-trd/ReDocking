@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 using Avalonia.Controls;
@@ -20,21 +21,25 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void OnEdgeBarButtonDrop(object? sender, ButtonDropEventArgs e)
+    private void OnEdgeBarButtonDrop(object? sender, EdgeBarButtonMoveEventArgs e)
     {
-        ReactiveCollection<ToolWindowViewModel>? GetItemsSource(EdgeBar edgeBar, EdgeBarButtonLocation location)
+        ReactiveCollection<ToolWindowViewModel>? GetItemsSource(MainWindowViewModel viewModel, DockAreaLocation location)
         {
             return location switch
             {
-                EdgeBarButtonLocation.Top => edgeBar.TopToolsSource,
-                EdgeBarButtonLocation.Middle => edgeBar.ToolsSource,
-                EdgeBarButtonLocation.Bottom => edgeBar.BottomToolsSource,
-                _ => null
-            } as ReactiveCollection<ToolWindowViewModel>;
+                DockAreaLocation.Left => viewModel.LeftTools,
+                DockAreaLocation.Right => viewModel.RightTools,
+                DockAreaLocation.TopLeft => viewModel.LeftTopTools,
+                DockAreaLocation.BottomLeft => viewModel.LeftBottomTools,
+                DockAreaLocation.TopRight => viewModel.RightTopTools,
+                DockAreaLocation.BottomRight => viewModel.RightBottomTools,
+                _ => throw new ArgumentOutOfRangeException(nameof(location), location, null)
+            };
         }
 
-        var oldItems = GetItemsSource(e.SourceEdgeBar, e.SourceLocation);
-        var newItems = GetItemsSource(e.DestinationEdgeBar, e.DestinationLocation);
+        if (DataContext is not MainWindowViewModel viewModel) return;
+        var oldItems = GetItemsSource(viewModel, e.SourceLocation);
+        var newItems = GetItemsSource(viewModel, e.DestinationLocation);
 
         if (oldItems == null || newItems == null || e.Item is not ToolWindowViewModel item)
         {

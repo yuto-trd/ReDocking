@@ -1,3 +1,5 @@
+using System.Collections;
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
@@ -23,35 +25,42 @@ public class EdgeBarButton : ToggleButton
         set => SetValue(IconSourceProperty, value);
     }
 
-    internal EdgeBarButtonLocation? Location { get; set; }
-
-    internal EdgeBarLocation? EdgeBarLocation { get; set; }
+    internal DockAreaLocation? DockLocation { get; set; }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
         var itemsControl = this.FindAncestorOfType<ItemsControl>();
-        Location = itemsControl?.Name switch
+        var l = itemsControl?.Name switch
         {
-            "PART_TopTools" => EdgeBarButtonLocation.Top,
-            "PART_Tools" => EdgeBarButtonLocation.Middle,
-            "PART_BottomTools" => EdgeBarButtonLocation.Bottom,
-            _ => null
+            "PART_TopTools" => DockAreaLocation.Top,
+            "PART_BottomTools" => DockAreaLocation.Bottom,
+            _ => default
         };
         var edgeBar = this.FindAncestorOfType<EdgeBar>();
-        EdgeBarLocation = edgeBar?.Location;
+        if (edgeBar != null)
+        {
+            DockLocation = edgeBar.Location | l;
+        }
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
-        Location = null;
+        DockLocation = null;
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        _canDrag = true;
+        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+        {
+            this.FindAncestorOfType<ReDockHost>()?.ShowFlyout(this);
+        }
+        else
+        {
+            _canDrag = true;
+        }
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
