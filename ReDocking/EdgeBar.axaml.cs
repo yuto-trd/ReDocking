@@ -35,6 +35,7 @@ public class EdgeBar : TemplatedControl
     private ItemsControl? _tools;
     private ItemsControl? _bottomTools;
     private Grid? _grid;
+    private Border? _divider;
 
     private EdgeBarButton? _dragGhost;
     private AdornerLayer? _layer;
@@ -91,6 +92,7 @@ public class EdgeBar : TemplatedControl
         _tools = e.NameScope.Get<ItemsControl>("PART_Tools");
         _bottomTools = e.NameScope.Get<ItemsControl>("PART_BottomTools");
         _grid = e.NameScope.Get<Grid>("PART_Grid");
+        _divider = e.NameScope.Get<Border>("PART_Divider");
     }
 
     private void OnDrop(object? sender, DragEventArgs e)
@@ -99,49 +101,63 @@ public class EdgeBar : TemplatedControl
         (DockAreaLocation location, int index) = DetermineLocation(position);
         OnDragLeave(sender, e);
 
-        if (!e.Data.Contains("EdgeBarButton") ||
-            e.Data.Get("EdgeBarButton") is not EdgeBarButton { DockLocation: not null } button) return;
-
-        if (index < 0) return;
-
-        var edgeBar = button.FindAncestorOfType<EdgeBar>();
-        if (edgeBar == null) return;
-
-        var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
+        try
         {
-            Item = button.DataContext,
-            Button = button,
-            SourceEdgeBar = edgeBar,
-            SourceLocation = button.DockLocation.Value,
-            DestinationEdgeBar = this,
-            DestinationLocation = location | Location,
-            DestinationIndex = index
-        };
-        RaiseEvent(args);
+            if (!e.Data.Contains("EdgeBarButton") ||
+                e.Data.Get("EdgeBarButton") is not EdgeBarButton { DockLocation: not null } button) return;
 
-        if (args.Handled) return;
+            if (index < 0) return;
 
-        var newItemsSource = location switch
+            var edgeBar = button.FindAncestorOfType<EdgeBar>();
+            if (edgeBar == null) return;
+
+            var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
+            {
+                Item = button.DataContext,
+                Button = button,
+                SourceEdgeBar = edgeBar,
+                SourceLocation = button.DockLocation.Value,
+                DestinationEdgeBar = this,
+                DestinationLocation = location | Location,
+                DestinationIndex = index
+            };
+            RaiseEvent(args);
+
+            if (args.Handled) return;
+
+            var newItemsSource = location switch
+            {
+                DockAreaLocation.Top => TopToolsSource,
+                DockAreaLocation.Bottom => BottomToolsSource,
+                _ => ToolsSource,
+            };
+
+            var itemsControl = button.FindAncestorOfType<ItemsControl>();
+            var items = itemsControl?.ItemsSource;
+            if (items is not IList oldSource) return;
+            if (newItemsSource is not IList newSource) return;
+
+            if (oldSource.Contains(button.DataContext))
+            {
+                oldSource.Remove(button.DataContext);
+                newSource.Insert(index, button.DataContext);
+            }
+            else if (oldSource.Contains(button))
+            {
+                oldSource.Remove(button);
+                newSource.Insert(index, button);
+            }
+        }finally
         {
-            DockAreaLocation.Top => TopToolsSource,
-            DockAreaLocation.Bottom => BottomToolsSource,
-            _ => ToolsSource,
-        };
-
-        var itemsControl = button.FindAncestorOfType<ItemsControl>();
-        var items = itemsControl?.ItemsSource;
-        if (items is not IList oldSource) return;
-        if (newItemsSource is not IList newSource) return;
-
-        if (oldSource.Contains(button.DataContext))
-        {
-            oldSource.Remove(button.DataContext);
-            newSource.Insert(index, button.DataContext);
+            UpdateDividerVisibility();
         }
-        else if (oldSource.Contains(button))
+    }
+
+    private void UpdateDividerVisibility()
+    {
+        if (_divider != null && _topTools != null && _tools != null)
         {
-            oldSource.Remove(button);
-            newSource.Insert(index, button);
+            _divider.IsVisible = _topTools.ItemCount > 0 && _tools.ItemCount > 0;
         }
     }
 
@@ -165,6 +181,7 @@ public class EdgeBar : TemplatedControl
             _topTools.Margin = default;
             _tools.Margin = default;
             _bottomTools.Margin = default;
+            UpdateDividerVisibility();
 
             if (_dragGhost != null && _layer != null)
             {
@@ -180,6 +197,11 @@ public class EdgeBar : TemplatedControl
         if (e.Data.Contains("EdgeBarButton"))
         {
             SetGridHitTestVisible(false);
+            if (_divider != null)
+            {
+                _divider.IsVisible = true;
+            }
+
             _dragGhost = new EdgeBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
             _layer = AdornerLayer.GetAdornerLayer(this);
             _layer?.Children.Add(_dragGhost);
