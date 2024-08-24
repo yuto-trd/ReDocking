@@ -23,27 +23,19 @@ public partial class MainWindow : Window
 
     private void OnEdgeBarButtonDrop(object? sender, EdgeBarButtonMoveEventArgs e)
     {
-        ReactiveCollection<ToolWindowViewModel>? GetItemsSource(MainWindowViewModel viewModel, DockAreaLocation location)
-        {
-            return location switch
-            {
-                DockAreaLocation.Left => viewModel.LeftTools,
-                DockAreaLocation.Right => viewModel.RightTools,
-                DockAreaLocation.TopLeft => viewModel.LeftTopTools,
-                DockAreaLocation.BottomLeft => viewModel.LeftBottomTools,
-                DockAreaLocation.TopRight => viewModel.RightTopTools,
-                DockAreaLocation.BottomRight => viewModel.RightBottomTools,
-                _ => throw new ArgumentOutOfRangeException(nameof(location), location, null)
-            };
-        }
-
         if (DataContext is not MainWindowViewModel viewModel) return;
         var oldItems = GetItemsSource(viewModel, e.SourceLocation);
+        var oldSelectedItem = GetSelectedItem(viewModel, e.SourceLocation);
         var newItems = GetItemsSource(viewModel, e.DestinationLocation);
 
-        if (oldItems == null || newItems == null || e.Item is not ToolWindowViewModel item)
+        if (e.Item is not ToolWindowViewModel item)
         {
             return;
+        }
+
+        if (oldSelectedItem.Value == item)
+        {
+            oldSelectedItem.Value = null;
         }
 
         if (oldItems == newItems)
@@ -54,14 +46,46 @@ public partial class MainWindow : Window
             {
                 destinationIndex--;
             }
+
             oldItems.Move(sourceIndex, destinationIndex);
         }
         else
         {
             oldItems.Remove(item);
-            newItems.Insert(e.DestinationIndex, new ToolWindowViewModel(item.Name.Value, item.Icon.Value));   
+            newItems.Insert(e.DestinationIndex, new ToolWindowViewModel(item.Name.Value, item.Icon.Value));
         }
 
         e.Handled = true;
+    }
+
+
+    private static ReactiveCollection<ToolWindowViewModel> GetItemsSource(MainWindowViewModel viewModel,
+        DockAreaLocation location)
+    {
+        return location switch
+        {
+            DockAreaLocation.Left => viewModel.LeftTools,
+            DockAreaLocation.Right => viewModel.RightTools,
+            DockAreaLocation.TopLeft => viewModel.LeftTopTools,
+            DockAreaLocation.BottomLeft => viewModel.LeftBottomTools,
+            DockAreaLocation.TopRight => viewModel.RightTopTools,
+            DockAreaLocation.BottomRight => viewModel.RightBottomTools,
+            _ => throw new ArgumentOutOfRangeException(nameof(location), location, null)
+        };
+    }
+
+    private static ReactiveProperty<ToolWindowViewModel?> GetSelectedItem(MainWindowViewModel viewModel,
+        DockAreaLocation location)
+    {
+        return location switch
+        {
+            DockAreaLocation.Left => viewModel.SelectedLeftTool,
+            DockAreaLocation.Right => viewModel.SelectedRightTool,
+            DockAreaLocation.TopLeft => viewModel.SelectedLeftTopTool,
+            DockAreaLocation.BottomLeft => viewModel.SelectedLeftBottomTool,
+            DockAreaLocation.TopRight => viewModel.SelectedRightTopTool,
+            DockAreaLocation.BottomRight => viewModel.SelectedRightBottomTool,
+            _ => throw new ArgumentOutOfRangeException(nameof(location), location, null)
+        };
     }
 }
