@@ -18,7 +18,8 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}">
                     <Grid Name="PART_Grid" RowDefinitions="Auto,*,Auto">
-                        <StackPanel Grid.Row="1"
+                        <StackPanel Name="PART_Stack"
+                                    Grid.Row="0"
                                     Width="32"
                                     HorizontalAlignment="Center">
                             <ItemsControl Name="PART_TopTools"

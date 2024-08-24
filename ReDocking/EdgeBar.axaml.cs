@@ -35,6 +35,7 @@ public class EdgeBar : TemplatedControl
     private ItemsControl? _tools;
     private ItemsControl? _bottomTools;
     private Grid? _grid;
+    private StackPanel? _stack;
     private Border? _divider;
 
     private EdgeBarButton? _dragGhost;
@@ -92,6 +93,7 @@ public class EdgeBar : TemplatedControl
         _tools = e.NameScope.Get<ItemsControl>("PART_Tools");
         _bottomTools = e.NameScope.Get<ItemsControl>("PART_BottomTools");
         _grid = e.NameScope.Get<Grid>("PART_Grid");
+        _stack = e.NameScope.Get<StackPanel>("PART_Stack");
         _divider = e.NameScope.Get<Border>("PART_Divider");
     }
 
@@ -101,6 +103,7 @@ public class EdgeBar : TemplatedControl
         (DockAreaLocation location, int index) = DetermineLocation(position);
         OnDragLeave(sender, e);
 
+        EdgeBar? oldEdgeBar = null;
         try
         {
             if (!e.Data.Contains("EdgeBarButton") ||
@@ -108,14 +111,14 @@ public class EdgeBar : TemplatedControl
 
             if (index < 0) return;
 
-            var edgeBar = button.FindAncestorOfType<EdgeBar>();
-            if (edgeBar == null) return;
+            oldEdgeBar = button.FindAncestorOfType<EdgeBar>();
+            if (oldEdgeBar == null) return;
 
             var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
             {
                 Item = button.DataContext,
                 Button = button,
-                SourceEdgeBar = edgeBar,
+                SourceEdgeBar = oldEdgeBar,
                 SourceLocation = button.DockLocation.Value,
                 DestinationEdgeBar = this,
                 DestinationLocation = location | Location,
@@ -147,9 +150,11 @@ public class EdgeBar : TemplatedControl
                 oldSource.Remove(button);
                 newSource.Insert(index, button);
             }
-        }finally
+        }
+        finally
         {
             UpdateDividerVisibility();
+            oldEdgeBar?.UpdateDividerVisibility();
         }
     }
 
@@ -157,7 +162,8 @@ public class EdgeBar : TemplatedControl
     {
         if (_divider != null && _topTools != null && _tools != null)
         {
-            _divider.IsVisible = _topTools.ItemCount > 0 && _tools.ItemCount > 0;
+            _divider.IsVisible = TopToolsSource.Cast<object>().Any() &&
+                                 ToolsSource.Cast<object>().Any();
         }
     }
 
@@ -175,8 +181,6 @@ public class EdgeBar : TemplatedControl
             }
 
             _topTools.Margin = default;
-            _tools.Margin = default;
-            _bottomTools.Margin = default;
             UpdateDividerVisibility();
 
             if (_dragGhost != null && _layer != null)
@@ -243,8 +247,15 @@ public class EdgeBar : TemplatedControl
             }
         }
 
+        // 上のツールと下のツールの間のスペース
+        var spaceBetween = _grid.Bounds.Height - (_stack.Bounds.Height + _bottomTools.Bounds.Height);
+        if (spaceBetween < 0)
+        {
+            spaceBetween = 16;
+        }
+
         clientPosition = _tools.PointToClient(position);
-        if (clientPosition.Y < _tools.Bounds.Height + 8)
+        if (clientPosition.Y < _tools.Bounds.Height + spaceBetween / 2)
         {
             return (default, _tools.ItemCount);
         }
@@ -263,7 +274,7 @@ public class EdgeBar : TemplatedControl
 
 
         clientPosition = _bottomTools.PointToClient(position);
-        if (clientPosition.Y < _bottomTools.Bounds.Height + 8)
+        if (clientPosition.Y < _bottomTools.Bounds.Height + spaceBetween / 2)
         {
             return (DockAreaLocation.Bottom, 0);
         }
@@ -353,27 +364,28 @@ public class EdgeBar : TemplatedControl
                 }
             }
 
+            // 上のツールと下のツールの間のスペース
+            var spaceBetween = _grid.Bounds.Height - (_stack.Bounds.Height + _bottomTools.Bounds.Height);
+            if (spaceBetween < 0)
+            {
+                spaceBetween = 16;
+            }
+
             clientPosition = _tools.PointToClient(position);
-            if (clientPosition.Y < _tools.Bounds.Height + 8 && !handled)
+            if (clientPosition.Y < _tools.Bounds.Height + spaceBetween / 2 && !handled)
             {
                 if (toolsVisibleItemsCount == 0)
                 {
                     var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height - pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
-                    _tools.Margin = new Thickness(0, 0, 0, 32);
                 }
                 else
                 {
                     var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height + 8 - pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
-                    _tools.Margin = new Thickness(0, 0, 0, 40);
                 }
 
                 handled = true;
-            }
-            else
-            {
-                _tools.Margin = default;
             }
 
             pad = 0;
@@ -401,28 +413,22 @@ public class EdgeBar : TemplatedControl
 
 
             clientPosition = _bottomTools.PointToClient(position);
-            if (clientPosition.Y < _bottomTools.Bounds.Height + 8 && !handled)
+            if (clientPosition.Y < _bottomTools.Bounds.Height + spaceBetween / 2 && !handled)
             {
                 if (bottomToolsVisibleItemsCount == 0)
                 {
                     var ghostPos =
                         _layer.PointToClient(_bottomTools.PointToScreen(new(0, pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
-                    _bottomTools.Margin = new Thickness(0, 32, 0, 0);
                 }
                 else
                 {
                     var ghostPos =
                         _layer.PointToClient(_bottomTools.PointToScreen(new(0, -8 + pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
-                    _bottomTools.Margin = new Thickness(0, 40, 0, 0);
                 }
 
                 handled = true;
-            }
-            else
-            {
-                _bottomTools.Margin = default;
             }
         }
     }
