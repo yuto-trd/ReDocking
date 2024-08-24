@@ -86,7 +86,6 @@ public class EdgeBarButton : ToggleButton
             _canDrag = false;
             var edgeBar = this.FindAncestorOfType<EdgeBar>();
             edgeBar?.SetGridHitTestVisible(false);
-            ToolTip.SetServiceEnabled(this, false);
             IsVisible = false;
             if (Parent is ContentPresenter cp)
             {
@@ -97,7 +96,6 @@ public class EdgeBarButton : ToggleButton
             data.Set("EdgeBarButton", this);
             await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
             edgeBar?.SetGridHitTestVisible(true);
-            ToolTip.SetServiceEnabled(this, true);
             IsVisible = true;
             if (Parent is ContentPresenter cp2)
             {

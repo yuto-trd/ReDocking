@@ -172,10 +172,6 @@ public class EdgeBar : TemplatedControl
                          .Concat(_bottomTools.GetRealizedContainers()))
             {
                 item.Margin = default;
-                if (item is ContentPresenter { Child: { } child })
-                {
-                    ToolTip.SetServiceEnabled(child, true);
-                }
             }
 
             _topTools.Margin = default;
@@ -205,15 +201,6 @@ public class EdgeBar : TemplatedControl
             _dragGhost = new EdgeBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
             _layer = AdornerLayer.GetAdornerLayer(this);
             _layer?.Children.Add(_dragGhost);
-
-            _topTools.GetRealizedContainers()
-                .Concat(_tools.GetRealizedContainers())
-                .Concat(_bottomTools.GetRealizedContainers())
-                .OfType<ContentPresenter>()
-                .Select(i => i.Child)
-                .Where(i => i is not null)
-                .ToObservable()
-                .Subscribe(i => ToolTip.SetServiceEnabled(i, false));
 
             OnDragOver(sender, e);
         }
