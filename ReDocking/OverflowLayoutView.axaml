@@ -1,0 +1,32 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="using:ReDocking">
+    <Design.PreviewWith>
+        <local:OverflowLayoutView>
+            <local:OverflowLayoutView.ItemsSource>
+                <Button Content="Item1" />
+                <Button Content="Item2" />
+            </local:OverflowLayoutView.ItemsSource>
+        </local:OverflowLayoutView>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type local:OverflowLayoutView}" TargetType="local:OverflowLayoutView">
+        <!--  Set Defaults  -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel Name="PART_Root"
+                            Orientation="{TemplateBinding Orientation}"
+                            Spacing="{TemplateBinding Spacing}">
+                    <ItemsControl Name="PART_ItemsControl">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="{TemplateBinding Orientation}" Spacing="{TemplateBinding Spacing}" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    <ContentPresenter Name="PART_ButtonPresenter" Content="{TemplateBinding Button}" />
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>
