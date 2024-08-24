@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 using Avalonia;
@@ -18,6 +19,7 @@ public class EdgeBarButton : ToggleButton
         AvaloniaProperty.Register<EdgeBarButton, IconSource>(nameof(IconSource));
 
     private bool _canDrag;
+    private Point _startPoint;
 
     public IconSource IconSource
     {
@@ -60,6 +62,7 @@ public class EdgeBarButton : ToggleButton
         else
         {
             _canDrag = true;
+            _startPoint = e.GetPosition(this);
         }
     }
 
@@ -74,6 +77,12 @@ public class EdgeBarButton : ToggleButton
         base.OnPointerMoved(e);
         if (_canDrag)
         {
+            var point = e.GetPosition(this);
+            var threshold = Bounds.Height / 2;
+
+            if (!(Math.Abs(point.X - _startPoint.X) > threshold) && !(Math.Abs(point.Y - _startPoint.Y) > threshold))
+                return;
+
             _canDrag = false;
             var edgeBar = this.FindAncestorOfType<EdgeBar>();
             edgeBar?.SetGridHitTestVisible(false);
