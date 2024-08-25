@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive.Linq;
 
 using Avalonia;
@@ -9,10 +10,11 @@ using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Metadata;
+using Avalonia.Xaml.Interactivity;
 
 namespace ReDocking;
 
-public class HorizontallySplittedView : TemplatedControl
+public class HorizontallySplittedView : TemplatedControl, IDockAreaView
 {
     public static readonly StyledProperty<object?> LeftContentProperty =
         AvaloniaProperty.Register<HorizontallySplittedView, object?>(nameof(LeftContent));
@@ -33,10 +35,13 @@ public class HorizontallySplittedView : TemplatedControl
         AvaloniaProperty.Register<HorizontallySplittedView, double>(nameof(RightWidthProportion),
             defaultValue: 1);
 
+    private DockArea? _leftDockArea;
+    private DockArea? _rightDockArea;
     private ContentPresenter? _leftPresenter;
     private ContentPresenter? _rightPresenter;
     private Thumb? _thumb;
     private Panel? _root;
+    private bool _dragEventSubscribed;
 
     private const double ThumbPadding = 2;
 
@@ -76,6 +81,57 @@ public class HorizontallySplittedView : TemplatedControl
     {
         get => GetValue(RightWidthProportionProperty);
         set => SetValue(RightWidthProportionProperty, value);
+    }
+
+    (DockArea, Control)[] IDockAreaView.GetArea()
+    {
+        return [(_leftDockArea!, _leftPresenter!), (_rightDockArea!, _rightPresenter!)];
+    }
+
+    void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
+    {
+        if (dockArea.Location.HasFlag(DockAreaLocation.Left))
+        {
+            _leftDockArea = dockArea;
+        }
+        else if (dockArea.Location.HasFlag(DockAreaLocation.Right))
+        {
+            _rightDockArea = dockArea;
+        }
+
+        UpdateIsDragDropEnabled();
+    }
+
+    void IDockAreaView.OnDetachedFromDockArea(DockArea dockArea)
+    {
+        if (dockArea.Location.HasFlag(DockAreaLocation.Left))
+        {
+            _leftDockArea = null;
+        }
+        else if (dockArea.Location.HasFlag(DockAreaLocation.Right))
+        {
+            _rightDockArea = null;
+        }
+
+        UpdateIsDragDropEnabled();
+    }
+
+    private void UpdateIsDragDropEnabled()
+    {
+        var list = Interaction.GetBehaviors(this);
+        if (_leftDockArea != null || _rightDockArea != null)
+        {
+            if (_dragEventSubscribed) return;
+            _dragEventSubscribed = true;
+            list.Add(new DockAreaDragDropBehavior());
+        }
+        else
+        {
+            if (!_dragEventSubscribed) return;
+            _dragEventSubscribed = false;
+
+            list.RemoveAll(list.OfType<DockAreaDragDropBehavior>());
+        }
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

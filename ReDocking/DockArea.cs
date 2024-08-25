@@ -8,8 +8,8 @@ public class DockArea : AvaloniaObject
     public static readonly StyledProperty<DockAreaLocation> LocationProperty =
         AvaloniaProperty.Register<DockArea, DockAreaLocation>(nameof(Location));
 
-    public static readonly StyledProperty<Control?> ViewProperty =
-        AvaloniaProperty.Register<DockArea, Control?>(nameof(View));
+    public static readonly StyledProperty<IDockAreaView?> ViewProperty =
+        AvaloniaProperty.Register<DockArea, IDockAreaView?>(nameof(View));
 
     public static readonly StyledProperty<EdgeBar?> EdgeBarProperty =
         AvaloniaProperty.Register<DockArea, EdgeBar?>(nameof(EdgeBar));
@@ -33,7 +33,7 @@ public class DockArea : AvaloniaObject
     }
 
     [ResolveByName]
-    public Control? View
+    public IDockAreaView? View
     {
         get => GetValue(ViewProperty);
         set => SetValue(ViewProperty, value);
@@ -50,5 +50,22 @@ public class DockArea : AvaloniaObject
     {
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == ViewProperty)
+        {
+            if (change.OldValue is IDockAreaView oldView)
+            {
+                oldView.OnDetachedFromDockArea(this);
+            }
+
+            if (change.NewValue is IDockAreaView newView)
+            {
+                newView.OnAttachedToDockArea(this);
+            }
+        }
     }
 }

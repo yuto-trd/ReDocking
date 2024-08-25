@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive.Linq;
 
 using Avalonia;
@@ -7,12 +8,15 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.LogicalTree;
+using Avalonia.Media;
 using Avalonia.Metadata;
+using Avalonia.Xaml.Interactivity;
 
 namespace ReDocking;
 
-public class ReDock : TemplatedControl
+public class ReDock : TemplatedControl, IDockAreaView
 {
     public static readonly StyledProperty<object?> LeftContentProperty =
         AvaloniaProperty.Register<ReDock, object?>(nameof(LeftContent));
@@ -41,11 +45,14 @@ public class ReDock : TemplatedControl
     public static readonly StyledProperty<double> RightWidthProportionProperty =
         AvaloniaProperty.Register<ReDock, double>(nameof(RightWidthProportion), defaultValue: 1 / 4d);
 
+    private DockArea? _leftDockArea;
+    private DockArea? _rightDockArea;
     private ContentPresenter? _leftPresenter;
     private ContentPresenter? _rightPresenter;
     private ContentPresenter? _presenter;
     private Thumb? _leftThumb;
     private Thumb? _rightThumb;
+    private bool _dragEventSubscribed;
 
     private const double ThumbPadding = 2;
 
@@ -105,6 +112,57 @@ public class ReDock : TemplatedControl
     {
         get => GetValue(RightWidthProportionProperty);
         set => SetValue(RightWidthProportionProperty, value);
+    }
+
+    (DockArea, Control)[] IDockAreaView.GetArea()
+    {
+        return [(_leftDockArea!, _leftPresenter!), (_rightDockArea!, _rightPresenter!)];
+    }
+
+    void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
+    {
+        if (dockArea.Location.HasFlag(DockAreaLocation.Left))
+        {
+            _leftDockArea = dockArea;
+        }
+        else if (dockArea.Location.HasFlag(DockAreaLocation.Right))
+        {
+            _rightDockArea = dockArea;
+        }
+
+        UpdateIsDragDropEnabled();
+    }
+
+    void IDockAreaView.OnDetachedFromDockArea(DockArea dockArea)
+    {
+        if (dockArea.Location.HasFlag(DockAreaLocation.Left))
+        {
+            _leftDockArea = null;
+        }
+        else if (dockArea.Location.HasFlag(DockAreaLocation.Right))
+        {
+            _rightDockArea = null;
+        }
+
+        UpdateIsDragDropEnabled();
+    }
+
+    private void UpdateIsDragDropEnabled()
+    {
+        var list = Interaction.GetBehaviors(this);
+        if (_leftDockArea != null || _rightDockArea != null)
+        {
+            if (_dragEventSubscribed) return;
+            _dragEventSubscribed = true;
+            list.Add(new DockAreaDragDropBehavior());
+        }
+        else
+        {
+            if (!_dragEventSubscribed) return;
+            _dragEventSubscribed = false;
+
+            list.RemoveAll(list.OfType<DockAreaDragDropBehavior>());
+        }
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

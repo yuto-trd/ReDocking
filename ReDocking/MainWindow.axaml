@@ -15,10 +15,12 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="EdgeDividerBrush">#FFEBEBEB</SolidColorBrush>
+                    <SolidColorBrush x:Key="EdgeDividerBrush">#0F000000</SolidColorBrush>
+                    <!-- <SolidColorBrush x:Key="EdgeDividerBrush">#FFEBEBEB</SolidColorBrush> -->
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="EdgeDividerBrush">#37000000</SolidColorBrush>
+                    <SolidColorBrush x:Key="EdgeDividerBrush">#12FFFFFF</SolidColorBrush>
+                    <!-- <SolidColorBrush x:Key="EdgeDividerBrush">#37000000</SolidColorBrush> -->
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
             <ControlTheme x:Key="EdgeButton"

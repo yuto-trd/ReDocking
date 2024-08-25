@@ -48,11 +48,14 @@ public partial class MainWindow : Window
             }
 
             oldItems.Move(sourceIndex, destinationIndex);
+            item.IsSelected.Value = true;
         }
         else
         {
             oldItems.Remove(item);
-            newItems.Insert(e.DestinationIndex, new ToolWindowViewModel(item.Name.Value, item.Icon.Value));
+            var newItem = new ToolWindowViewModel(item.Name.Value, item.Icon.Value);
+            newItems.Insert(e.DestinationIndex, newItem);
+            newItem.IsSelected.Value = true;
         }
 
         e.Handled = true;
