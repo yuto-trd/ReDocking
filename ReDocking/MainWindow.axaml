@@ -33,7 +33,8 @@
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
             </ControlTheme>
             <DataTemplate x:Key="LeftSideBarButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
-                <local:SideBarButton IsChecked="{Binding IsSelected.Value}"
+                <local:SideBarButton DisplayMode="{Binding DisplayMode.Value}"
+                                     IsChecked="{Binding IsSelected.Value}"
                                      ToolTip.Placement="Right"
                                      ToolTip.ShowDelay="200"
                                      ToolTip.Tip="{Binding Name.Value}"
@@ -44,7 +45,8 @@
                 </local:SideBarButton>
             </DataTemplate>
             <DataTemplate x:Key="RightSideBarButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
-                <local:SideBarButton IsChecked="{Binding IsSelected.Value}"
+                <local:SideBarButton DisplayMode="{Binding DisplayMode.Value}"
+                                     IsChecked="{Binding IsSelected.Value}"
                                      ToolTip.Placement="Left"
                                      ToolTip.ShowDelay="200"
                                      ToolTip.Tip="{Binding Name.Value}"
@@ -66,7 +68,10 @@
             </Button>
         </Grid>
         <Border Grid.Row="1" Background="{DynamicResource SideDividerBrush}" />
-        <local:ReDockHost Grid.Row="2" ButtonMove="OnSideBarButtonDrop">
+        <local:ReDockHost Grid.Row="2"
+                          ButtonDisplayModeChanged="OnSideBarButtonDisplayModeChanged"
+                          ButtonMove="OnSideBarButtonDrop"
+                          IsFloatingEnabled="True">
             <local:ReDockHost.DockAreas>
                 <local:DockArea LocalizedName="左"
                                 Location="Left"

@@ -16,7 +16,7 @@ public class MainWindowViewModel : IDisposable
         {
             selected.Subscribe(x =>
                 list.ToObservable()
-                    .Where(y => y != x)
+                    .Where(y => y != x && y.DisplayMode.Value == DockableDisplayMode.Docked)
                     .Subscribe(y => y.IsSelected.Value = false));
 
             list.ObserveAddChanged()
@@ -25,7 +25,15 @@ public class MainWindowViewModel : IDisposable
                 {
                     z.Subscribe(w =>
                     {
-                        selected.Value = w.y ? w.x : list.FirstOrDefault(xx => xx.IsSelected.Value);
+                        if (w is { y: true, x.DisplayMode.Value: DockableDisplayMode.Docked })
+                        {
+                            selected.Value = w.x;
+                        }
+                        else
+                        {
+                            selected.Value = list.FirstOrDefault(xx =>
+                                xx.IsSelected.Value && xx.DisplayMode.Value == DockableDisplayMode.Docked);
+                        }
                     });
                 });
 
@@ -75,6 +83,8 @@ public class MainWindowViewModel : IDisposable
 
     public ReactiveProperty<ToolWindowViewModel?> SelectedRightBottomTool { get; } = new();
 
+    public ReactiveCollection<ToolWindowViewModel> FloatingWindows { get; } = [];
+
     public void Dispose()
     {
         SelectedLeftTopTool.Dispose();
@@ -102,6 +112,8 @@ public class ToolWindowViewModel : IDisposable
     public ReactiveProperty<object> Content { get; } = new();
 
     public ReactiveProperty<bool> IsSelected { get; } = new(false);
+
+    public ReactiveProperty<DockableDisplayMode> DisplayMode { get; } = new(DockableDisplayMode.Docked);
 
     public void Dispose()
     {

@@ -15,17 +15,49 @@ internal class SideBarButtonMenuFlyout : MenuFlyout
     public SideBarButtonMenuFlyout(ReDockHost dockHost)
     {
         _dockHost = dockHost;
-        var moveMenu = new MenuItem();
-        moveMenu.Header = "Move to";
-        moveMenu.ItemsSource = dockHost.DockAreas;
-        moveMenu.DataTemplates.Add(new FuncDataTemplate<DockArea>(_ => true,
-            o => new TextBlock
-            {
-                [!TextBlock.TextProperty] = o.GetObservable(DockArea.LocalizedNameProperty).ToBinding(),
-            }));
+        var list = new List<Control>();
+        
+        {
+            var moveMenu = new MenuItem();
+            moveMenu.Header = "Move to";
+            moveMenu.ItemsSource = dockHost.DockAreas;
+            moveMenu.DataTemplates.Add(new FuncDataTemplate<DockArea>(_ => true,
+                o => new TextBlock
+                {
+                    [!TextBlock.TextProperty] = o.GetObservable(DockArea.LocalizedNameProperty).ToBinding(),
+                }));
 
-        moveMenu.AddHandler(MenuItem.ClickEvent, OnMoveToSubItemClick);
-        ItemsSource = new List<Control> { moveMenu };
+            moveMenu.AddHandler(MenuItem.ClickEvent, OnMoveToSubItemClick);
+            list.Add(moveMenu);
+        }
+        
+        if (dockHost.IsFloatingEnabled)
+        {
+            var displayMenu = new MenuItem();
+            displayMenu.Header = "Display mode";
+            displayMenu.ItemsSource = new List<Control>
+            {
+                new MenuItem { Header = "Docked", Tag = DockableDisplayMode.Docked },
+                new MenuItem { Header = "Floating", Tag = DockableDisplayMode.Floating },
+            };
+            displayMenu.AddHandler(MenuItem.ClickEvent, OnDisplayModeClick);
+            list.Add(displayMenu);
+        }
+
+        ItemsSource = list;
+    }
+
+    private void OnDisplayModeClick(object? sender, RoutedEventArgs e)
+    {
+        if (e.Source is MenuItem { Tag: DockableDisplayMode mode } &&
+            Target is SideBarButton button)
+        {
+            var args = new SideBarButtonDisplayModeChangedEventArgs(ReDockHost.ButtonDisplayModeChangedEvent, this)
+            {
+                DisplayMode = mode, Item = button.DataContext, Button = button
+            };
+            _dockHost.RaiseEvent(args);
+        }
     }
 
     private void OnMoveToSubItemClick(object? sender, RoutedEventArgs e)

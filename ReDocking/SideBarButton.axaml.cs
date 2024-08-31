@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
 
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 
 using FluentAvalonia.UI.Controls;
@@ -18,6 +17,10 @@ public class SideBarButton : ToggleButton
     public static readonly StyledProperty<IconSource> IconSourceProperty =
         AvaloniaProperty.Register<SideBarButton, IconSource>(nameof(IconSource));
 
+    public static readonly StyledProperty<DockableDisplayMode> DisplayModeProperty =
+        AvaloniaProperty.Register<SideBarButton, DockableDisplayMode>(nameof(DisplayMode),
+            defaultValue: DockableDisplayMode.Docked);
+
     private bool _canDrag;
     private Point _startPoint;
 
@@ -27,8 +30,14 @@ public class SideBarButton : ToggleButton
         set => SetValue(IconSourceProperty, value);
     }
 
-    internal DockAreaLocation? DockLocation { get; set; }
+    public DockableDisplayMode DisplayMode
+    {
+        get => GetValue(DisplayModeProperty);
+        set => SetValue(DisplayModeProperty, value);
+    }
 
+    internal DockAreaLocation? DockLocation { get; set; }
+    
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
