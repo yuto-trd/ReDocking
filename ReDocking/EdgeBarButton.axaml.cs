@@ -78,7 +78,7 @@ public class EdgeBarButton : ToggleButton
         if (_canDrag)
         {
             var point = e.GetPosition(this);
-            var threshold = Bounds.Height / 2;
+            var threshold = Bounds.Height / 4;
 
             if (!(Math.Abs(point.X - _startPoint.X) > threshold) && !(Math.Abs(point.Y - _startPoint.Y) > threshold))
                 return;
