@@ -1,7 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="using:ReDocking"
-                    xmlns:ui="using:FluentAvalonia.UI.Controls">
+                    xmlns:controls="using:ReDocking">
     <Design.PreviewWith>
         <Border Padding="16">
             <controls:SideBarButton />
@@ -37,11 +36,6 @@
                                   CornerRadius="{TemplateBinding CornerRadius}"
                                   RecognizesAccessKey="True" />
             </ControlTemplate>
-        </Setter>
-        <Setter Property="Content">
-            <Template>
-                <ui:IconSourceElement IconSource="{Binding IconSource, RelativeSource={RelativeSource AncestorType={x:Type controls:SideBarButton}}}" />
-            </Template>
         </Setter>
 
         <Style Selector="^:checked /template/ ContentPresenter#PART_ContentPresenter">

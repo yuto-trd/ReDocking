@@ -1,0 +1,22 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="SideDividerBrush">#0F000000</SolidColorBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="SideDividerBrush">#12FFFFFF</SolidColorBrush>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="ControlThemes/OverflowLayoutView.axaml" />
+                <MergeResourceInclude Source="ControlThemes/SideBar.axaml" />
+                <MergeResourceInclude Source="ControlThemes/SideBarButton.axaml" />
+                <MergeResourceInclude Source="ControlThemes/VerticallySplittedView.axaml" />
+                <MergeResourceInclude Source="ControlThemes/HorizontallySplittedView.axaml" />
+                <MergeResourceInclude Source="ControlThemes/ReDock.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+</Styles>

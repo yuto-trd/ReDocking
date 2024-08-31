@@ -4,31 +4,19 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.VisualTree;
-
-using FluentAvalonia.UI.Controls;
 
 namespace ReDocking;
 
 public class SideBarButton : ToggleButton
 {
-    public static readonly StyledProperty<IconSource> IconSourceProperty =
-        AvaloniaProperty.Register<SideBarButton, IconSource>(nameof(IconSource));
-
     public static readonly StyledProperty<DockableDisplayMode> DisplayModeProperty =
         AvaloniaProperty.Register<SideBarButton, DockableDisplayMode>(nameof(DisplayMode),
             defaultValue: DockableDisplayMode.Docked);
 
     private bool _canDrag;
     private Point _startPoint;
-
-    public IconSource IconSource
-    {
-        get => GetValue(IconSourceProperty);
-        set => SetValue(IconSourceProperty, value);
-    }
 
     public DockableDisplayMode DisplayMode
     {

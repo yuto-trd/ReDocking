@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
-namespace ReDocking;
+namespace ReDocking.ViewModels;
 
 public class MainWindowViewModel : IDisposable
 {
@@ -48,15 +48,12 @@ public class MainWindowViewModel : IDisposable
         ConfigureToolsList(RightTools, SelectedRightTool);
         ConfigureToolsList(RightBottomTools, SelectedRightBottomTool);
 
-        LeftTopTools.Add(new ToolWindowViewModel("Library", "\ue8f1"));
-        LeftTools.Add(new ToolWindowViewModel("Explorer", "\uec50"));
-        LeftBottomTools.Add(new ToolWindowViewModel("Timeline", "\ueca5"));
-        RightTopTools.Add(new ToolWindowViewModel("Notifications", "\uea8f"));
-        RightTopTools.Add(new ToolWindowViewModel("Notifications2", "\uea8f"));
-        RightTools.Add(new ToolWindowViewModel("Properties", "\ue15e"));
-        RightTools.Add(new ToolWindowViewModel("Properties2", "\ue15e"));
-        RightBottomTools.Add(new ToolWindowViewModel("Path Editor", "\uedfb"));
-        RightBottomTools.Add(new ToolWindowViewModel("Path Editor 2", "\uedfb"));
+        LeftTopTools.Add(new ToolWindowViewModel("Search", "\ue721", new SearchViewModel()));
+        LeftTools.Add(new ToolWindowViewModel("Explorer", "\uec50", new ExplorerViewModel()));
+        LeftBottomTools.Add(new ToolWindowViewModel("Debug", "\uebe8", new DebugViewModel()));
+        RightTopTools.Add(new ToolWindowViewModel("Notifications", "\uea8f", new NotificationsViewModel()));
+        RightTools.Add(new ToolWindowViewModel("Properties", "\ue15e", new PropertiesViewModel()));
+        RightBottomTools.Add(new ToolWindowViewModel("Problem", "\ue946", new ProblemViewModel()));
     }
 
     public ReactiveCollection<ToolWindowViewModel> LeftTopTools { get; } = [];
@@ -93,32 +90,5 @@ public class MainWindowViewModel : IDisposable
         SelectedRightTopTool.Dispose();
         SelectedRightTool.Dispose();
         SelectedRightBottomTool.Dispose();
-    }
-}
-
-public class ToolWindowViewModel : IDisposable
-{
-    public ToolWindowViewModel(string name, string icon)
-    {
-        Name.Value = name;
-        Content.Value = name;
-        Icon.Value = icon;
-    }
-
-    public ReactiveProperty<string> Icon { get; } = new();
-
-    public ReactiveProperty<string> Name { get; } = new();
-
-    public ReactiveProperty<object> Content { get; } = new();
-
-    public ReactiveProperty<bool> IsSelected { get; } = new(false);
-
-    public ReactiveProperty<DockableDisplayMode> DisplayMode { get; } = new(DockableDisplayMode.Docked);
-
-    public void Dispose()
-    {
-        Icon.Dispose();
-        Name.Dispose();
-        IsSelected.Dispose();
     }
 }

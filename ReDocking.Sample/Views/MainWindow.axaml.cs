@@ -1,56 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Data;
 using Avalonia.Platform;
 
 using Reactive.Bindings;
-using Reactive.Bindings.TinyLinq;
 
-namespace ReDocking;
+using ReDocking.ViewModels;
 
-public class ToolWindow : Window
-{
-    private readonly IDisposable _disposable;
-    private readonly Window _owner;
-
-    public ToolWindow(ToolWindowViewModel viewModel, Window owner)
-    {
-        _owner = owner;
-        DataContext = viewModel;
-        Width = 300;
-        Height = 300;
-        ShowInTaskbar = false;
-        Content = new ContentControl { [!ContentProperty] = new Binding("Content.Value") };
-        _disposable = viewModel.IsSelected.Subscribe(OnSelectedChanged);
-    }
-
-    public ToolWindowViewModel ViewModel => (ToolWindowViewModel)DataContext!;
-
-    private void OnSelectedChanged(bool isSelected)
-    {
-        if (!isSelected)
-        {
-            Hide();
-        }
-        else
-        {
-            Show(_owner);
-        }
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-        _disposable.Dispose();
-    }
-}
+namespace ReDocking.Views;
 
 public partial class MainWindow : Window
 {
@@ -118,7 +77,7 @@ public partial class MainWindow : Window
         else
         {
             oldItems.Remove(item);
-            var newItem = new ToolWindowViewModel(item.Name.Value, item.Icon.Value);
+            var newItem = new ToolWindowViewModel(item.Name.Value, item.Icon.Value, item.Content.Value);
             newItems.Insert(e.DestinationIndex, newItem);
             newItem.IsSelected.Value = true;
         }

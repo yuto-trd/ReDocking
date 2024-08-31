@@ -1,29 +1,19 @@
-<Window x:Class="ReDocking.MainWindow"
+<Window x:Class="ReDocking.Views.MainWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="using:ReDocking"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+        xmlns:viewModels="clr-namespace:ReDocking.ViewModels"
         Title="ReDocking"
         d:DesignHeight="450"
         d:DesignWidth="800"
-        x:DataType="local:MainWindowViewModel"
-        RequestedThemeVariant="Dark"
+        x:DataType="viewModels:MainWindowViewModel"
         mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="SideDividerBrush">#0F000000</SolidColorBrush>
-                    <!-- <SolidColorBrush x:Key="SideDividerBrush">#FFEBEBEB</SolidColorBrush> -->
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="SideDividerBrush">#12FFFFFF</SolidColorBrush>
-                    <!-- <SolidColorBrush x:Key="SideDividerBrush">#37000000</SolidColorBrush> -->
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-            <ControlTheme x:Key="SideBarButton"
+            <ControlTheme x:Key="SettingsButton"
                           BasedOn="{StaticResource TransparentButton}"
                           TargetType="Button">
                 <Setter Property="Width" Value="32" />
@@ -32,38 +22,39 @@
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
             </ControlTheme>
-            <DataTemplate x:Key="LeftSideBarButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
+            <DataTemplate x:Key="LeftSideBarButtonDataTemplate" x:DataType="viewModels:ToolWindowViewModel">
                 <local:SideBarButton DisplayMode="{Binding DisplayMode.Value}"
                                      IsChecked="{Binding IsSelected.Value}"
                                      ToolTip.Placement="Right"
                                      ToolTip.ShowDelay="200"
                                      ToolTip.Tip="{Binding Name.Value}"
                                      ToolTip.VerticalOffset="0">
-                    <local:SideBarButton.IconSource>
-                        <ui:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
-                    </local:SideBarButton.IconSource>
+                    <ui:FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
                 </local:SideBarButton>
             </DataTemplate>
-            <DataTemplate x:Key="RightSideBarButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
+            <DataTemplate x:Key="RightSideBarButtonDataTemplate" x:DataType="viewModels:ToolWindowViewModel">
                 <local:SideBarButton DisplayMode="{Binding DisplayMode.Value}"
                                      IsChecked="{Binding IsSelected.Value}"
                                      ToolTip.Placement="Left"
                                      ToolTip.ShowDelay="200"
                                      ToolTip.Tip="{Binding Name.Value}"
                                      ToolTip.VerticalOffset="0">
-                    <local:SideBarButton.IconSource>
-                        <ui:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
-                    </local:SideBarButton.IconSource>
+                    <ui:FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
                 </local:SideBarButton>
             </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
+    <Window.Styles>
+        <Style Selector="ui|TabView">
+            <Setter Property="Padding" Value="0" />
+        </Style>
+    </Window.Styles>
     <Grid RowDefinitions="40,1,*">
         <Grid Name="TitleBar" ColumnDefinitions="*,40">
             <Button Grid.Column="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Theme="{StaticResource SideBarButton}">
+                    Theme="{StaticResource SettingsButton}">
                 <ui:SymbolIcon Symbol="Setting" />
             </Button>
         </Grid>
@@ -73,32 +64,32 @@
                           ButtonMove="OnSideBarButtonDrop"
                           IsFloatingEnabled="True">
             <local:ReDockHost.DockAreas>
-                <local:DockArea LocalizedName="左"
+                <local:DockArea LocalizedName="Left"
                                 Location="Left"
                                 SideBar="LeftSideBar"
                                 Target="LeftContent"
                                 View="LeftRightArea" />
-                <local:DockArea LocalizedName="右"
+                <local:DockArea LocalizedName="Right"
                                 Location="Right"
                                 SideBar="RightSideBar"
                                 Target="RightContent"
                                 View="LeftRightArea" />
-                <local:DockArea LocalizedName="左上"
+                <local:DockArea LocalizedName="TopLeft"
                                 Location="TopLeft"
                                 SideBar="LeftSideBar"
                                 Target="LeftContent"
                                 View="TopLeftRightArea" />
-                <local:DockArea LocalizedName="右上"
+                <local:DockArea LocalizedName="TopRight"
                                 Location="TopRight"
                                 SideBar="RightSideBar"
                                 Target="RightContent"
                                 View="TopLeftRightArea" />
-                <local:DockArea LocalizedName="左下"
+                <local:DockArea LocalizedName="BottomLeft"
                                 Location="BottomLeft"
                                 SideBar="LeftSideBar"
                                 Target="LeftContent"
                                 View="BottomLeftRightArea" />
-                <local:DockArea LocalizedName="右下"
+                <local:DockArea LocalizedName="BottomRight"
                                 Location="BottomRight"
                                 SideBar="RightSideBar"
                                 Target="RightContent"
@@ -119,12 +110,12 @@
                               LeftContent="{Binding SelectedLeftTool.Value}"
                               RightContent="{Binding SelectedRightTool.Value}">
                     <local:ReDock.LeftContentTemplate>
-                        <DataTemplate x:DataType="local:ToolWindowViewModel">
+                        <DataTemplate x:DataType="viewModels:ToolWindowViewModel">
                             <ContentControl Content="{Binding Content.Value}" />
                         </DataTemplate>
                     </local:ReDock.LeftContentTemplate>
                     <local:ReDock.RightContentTemplate>
-                        <DataTemplate x:DataType="local:ToolWindowViewModel">
+                        <DataTemplate x:DataType="viewModels:ToolWindowViewModel">
                             <ContentControl Content="{Binding Content.Value}" />
                         </DataTemplate>
                     </local:ReDock.RightContentTemplate>
@@ -134,26 +125,20 @@
                                           LeftContent="{Binding SelectedLeftTopTool.Value}"
                                           RightContent="{Binding SelectedRightTopTool.Value}">
                                 <local:ReDock.LeftContentTemplate>
-                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                    <DataTemplate x:DataType="viewModels:ToolWindowViewModel">
                                         <ContentControl Content="{Binding Content.Value}" />
                                     </DataTemplate>
                                 </local:ReDock.LeftContentTemplate>
                                 <local:ReDock.RightContentTemplate>
-                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                    <DataTemplate x:DataType="viewModels:ToolWindowViewModel">
                                         <ContentControl Content="{Binding Content.Value}" />
                                     </DataTemplate>
                                 </local:ReDock.RightContentTemplate>
-                                <!--  <Border HorizontalAlignment="Stretch"  -->
-                                <!--  VerticalAlignment="Stretch"  -->
-                                <!--  BackgroundSizing="InnerBorderEdge"  -->
-                                <!--  BorderBrush="White"  -->
-                                <!--  BorderThickness="1">  -->
-                                <!--  <Border Width="600"  -->
-                                <!--  Height="337"  -->
-                                <!--  HorizontalAlignment="Center"  -->
-                                <!--  VerticalAlignment="Center"  -->
-                                <!--  Background="Black" />  -->
-                                <!-- </Border> -->
+                                <ui:TabView>
+                                    <ui:TabViewItem Header="File 1" />
+                                    <ui:TabViewItem Header="File 2" />
+                                    <ui:TabViewItem Header="File 3" />
+                                </ui:TabView>
                             </local:ReDock>
                         </local:VerticallySplittedView.TopContent>
                         <local:VerticallySplittedView.BottomContent>
@@ -161,12 +146,12 @@
                                                             LeftContent="{Binding SelectedLeftBottomTool.Value}"
                                                             RightContent="{Binding SelectedRightBottomTool.Value}">
                                 <local:HorizontallySplittedView.LeftContentTemplate>
-                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                    <DataTemplate x:DataType="viewModels:ToolWindowViewModel">
                                         <ContentControl Content="{Binding Content.Value}" />
                                     </DataTemplate>
                                 </local:HorizontallySplittedView.LeftContentTemplate>
                                 <local:HorizontallySplittedView.RightContentTemplate>
-                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                    <DataTemplate x:DataType="viewModels:ToolWindowViewModel">
                                         <ContentControl Content="{Binding Content.Value}" />
                                     </DataTemplate>
                                 </local:HorizontallySplittedView.RightContentTemplate>

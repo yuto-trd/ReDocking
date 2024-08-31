@@ -1,0 +1,36 @@
+<Application x:Class="ReDocking.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:viewModels="clr-namespace:ReDocking.ViewModels"
+             xmlns:views="clr-namespace:ReDocking.Views"
+             Name="ReDocking"
+             RequestedThemeVariant="Dark">
+    <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
+
+    <Application.Styles>
+        <FluentTheme />
+        <sty:FluentAvaloniaTheme />
+        <StyleInclude Source="avares://ReDocking/Styles.axaml" />
+    </Application.Styles>
+    <Application.DataTemplates>
+        <DataTemplate x:DataType="viewModels:ExplorerViewModel">
+            <views:Explorer />
+        </DataTemplate>
+        <DataTemplate x:DataType="viewModels:DebugViewModel">
+            <views:Debug />
+        </DataTemplate>
+        <DataTemplate x:DataType="viewModels:NotificationsViewModel">
+            <views:Notifications />
+        </DataTemplate>
+        <DataTemplate x:DataType="viewModels:ProblemViewModel">
+            <views:Problem />
+        </DataTemplate>
+        <DataTemplate x:DataType="viewModels:PropertiesViewModel">
+            <views:Properties />
+        </DataTemplate>
+        <DataTemplate x:DataType="viewModels:SearchViewModel">
+            <views:Search />
+        </DataTemplate>
+    </Application.DataTemplates>
+</Application>

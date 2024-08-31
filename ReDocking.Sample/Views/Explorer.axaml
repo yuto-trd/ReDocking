@@ -1,0 +1,47 @@
+<UserControl x:Class="ReDocking.Views.Explorer"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <TreeView>
+        <TreeViewItem Header=".git">
+            <TreeViewItem Header="hooks">
+                <TreeViewItem />
+            </TreeViewItem>
+            <TreeViewItem Header="info">
+                <TreeViewItem />
+            </TreeViewItem>
+            <TreeViewItem Header="logs">
+                <TreeViewItem />
+            </TreeViewItem>
+            <TreeViewItem Header="objects">
+                <TreeViewItem />
+            </TreeViewItem>
+            <TreeViewItem Header="refs">
+                <TreeViewItem />
+            </TreeViewItem>
+
+            <TreeViewItem Header="config" />
+            <TreeViewItem Header="description" />
+            <TreeViewItem Header="FETCH_HEAD" />
+            <TreeViewItem Header="HEAD" />
+            <TreeViewItem Header="index" />
+            <TreeViewItem Header="ORIG_HEAD" />
+        </TreeViewItem>
+        <TreeViewItem Header="ReDocking">
+            <TreeViewItem />
+        </TreeViewItem>
+        <TreeViewItem Header="ReDocking.Sample">
+            <TreeViewItem />
+        </TreeViewItem>
+        <TreeViewItem Header=".editorconfig" />
+        <TreeViewItem Header=".gitignore" />
+        <TreeViewItem Header="Directory.Package.props" />
+        <TreeViewItem Header="LICENSE" />
+        <TreeViewItem Header="README.md" />
+        <TreeViewItem Header="ReDocking.sln" />
+    </TreeView>
+</UserControl>
