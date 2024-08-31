@@ -212,7 +212,7 @@ public class SideBar : TemplatedControl
 
     private (DockAreaLocation, int) DetermineLocation(PixelPoint position)
     {
-        if (_topTools == null || _tools == null || _bottomTools == null)
+        if (_topTools == null || _tools == null || _bottomTools == null || _grid == null || _stack == null)
             return (default, -1);
 
         Point clientPosition;
@@ -284,7 +284,8 @@ public class SideBar : TemplatedControl
 
     private void OnDragOver(object? sender, DragEventArgs e)
     {
-        if (_topTools == null || _tools == null || _bottomTools == null || _grid == null) return;
+        if (_topTools == null || _tools == null || _bottomTools == null || _grid == null || _stack == null ||
+            _layer == null || _dragGhost == null) return;
         if (e.Data.Contains("SideBarButton"))
         {
             _grid.IsHitTestVisible = false;
@@ -427,8 +428,6 @@ public class SideBar : TemplatedControl
                         _layer.PointToClient(_bottomTools.PointToScreen(new(0, -8 + pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
                 }
-
-                handled = true;
             }
         }
     }
