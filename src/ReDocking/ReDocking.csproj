@@ -13,6 +13,7 @@
         <RepositoryType>Git</RepositoryType>
         <PackageTags>c-sharp;avalonia;avaloniaui;dotnet;dock</PackageTags>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
     
     <PropertyGroup Label="SourceLink">
@@ -27,5 +28,9 @@
         <PackageReference Include="Avalonia.Xaml.Interactions" />
         <PackageReference Include="Avalonia.Xaml.Interactivity" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 </Project>
