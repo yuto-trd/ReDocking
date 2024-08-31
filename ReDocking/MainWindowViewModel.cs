@@ -91,6 +91,7 @@ public class ToolWindowViewModel : IDisposable
     public ToolWindowViewModel(string name, string icon)
     {
         Name.Value = name;
+        Content.Value = name;
         Icon.Value = icon;
     }
 

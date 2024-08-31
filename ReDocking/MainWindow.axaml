@@ -113,11 +113,31 @@
                               Grid.Column="1"
                               LeftContent="{Binding SelectedLeftTool.Value}"
                               RightContent="{Binding SelectedRightTool.Value}">
+                    <local:ReDock.LeftContentTemplate>
+                        <DataTemplate x:DataType="local:ToolWindowViewModel">
+                            <ContentControl Content="{Binding Content.Value}" />
+                        </DataTemplate>
+                    </local:ReDock.LeftContentTemplate>
+                    <local:ReDock.RightContentTemplate>
+                        <DataTemplate x:DataType="local:ToolWindowViewModel">
+                            <ContentControl Content="{Binding Content.Value}" />
+                        </DataTemplate>
+                    </local:ReDock.RightContentTemplate>
                     <local:VerticallySplittedView>
                         <local:VerticallySplittedView.TopContent>
                             <local:ReDock Name="TopLeftRightArea"
                                           LeftContent="{Binding SelectedLeftTopTool.Value}"
                                           RightContent="{Binding SelectedRightTopTool.Value}">
+                                <local:ReDock.LeftContentTemplate>
+                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                        <ContentControl Content="{Binding Content.Value}" />
+                                    </DataTemplate>
+                                </local:ReDock.LeftContentTemplate>
+                                <local:ReDock.RightContentTemplate>
+                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                        <ContentControl Content="{Binding Content.Value}" />
+                                    </DataTemplate>
+                                </local:ReDock.RightContentTemplate>
                                 <!--  <Border HorizontalAlignment="Stretch"  -->
                                 <!--  VerticalAlignment="Stretch"  -->
                                 <!--  BackgroundSizing="InnerBorderEdge"  -->
@@ -134,7 +154,18 @@
                         <local:VerticallySplittedView.BottomContent>
                             <local:HorizontallySplittedView Name="BottomLeftRightArea"
                                                             LeftContent="{Binding SelectedLeftBottomTool.Value}"
-                                                            RightContent="{Binding SelectedRightBottomTool.Value}" />
+                                                            RightContent="{Binding SelectedRightBottomTool.Value}">
+                                <local:HorizontallySplittedView.LeftContentTemplate>
+                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                        <ContentControl Content="{Binding Content.Value}" />
+                                    </DataTemplate>
+                                </local:HorizontallySplittedView.LeftContentTemplate>
+                                <local:HorizontallySplittedView.RightContentTemplate>
+                                    <DataTemplate x:DataType="local:ToolWindowViewModel">
+                                        <ContentControl Content="{Binding Content.Value}" />
+                                    </DataTemplate>
+                                </local:HorizontallySplittedView.RightContentTemplate>
+                            </local:HorizontallySplittedView>
                         </local:VerticallySplittedView.BottomContent>
                     </local:VerticallySplittedView>
                 </local:ReDock>
