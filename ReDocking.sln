@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReDocking", "ReDocking\ReDocking.csproj", "{60E0D587-DE56-4C7C-860E-A86A186172E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReDocking", "src\ReDocking\ReDocking.csproj", "{60E0D587-DE56-4C7C-860E-A86A186172E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReDocking.Sample", "ReDocking.Sample\ReDocking.Sample.csproj", "{361D681B-4895-4B46-8945-E6F216DE829C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReDocking.Sample", "samples\ReDocking.Sample\ReDocking.Sample.csproj", "{361D681B-4895-4B46-8945-E6F216DE829C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

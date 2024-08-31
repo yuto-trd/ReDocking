@@ -20,6 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ReDocking\ReDocking.csproj" />
+      <ProjectReference Include="..\..\src\ReDocking\ReDocking.csproj" />
     </ItemGroup>
 </Project>
