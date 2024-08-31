@@ -14,7 +14,7 @@ Docking UI library for Avalonia like JetBrains IDEs.
 ## Installation
 
 ```bash
-dotnet add package ReDocking
+dotnet add package ReDocking.Avalonia
 ```
 
 ## Usage

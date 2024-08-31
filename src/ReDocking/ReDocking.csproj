@@ -5,7 +5,16 @@
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        
+        <PackageId>ReDocking.Avalonia</PackageId>
+        <Version>1.0.0</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Yuto Terada</Authors>
+        <RepositoryType>Git</RepositoryType>
+        <PackageTags>c-sharp;avalonia;avaloniaui;dotnet;dock</PackageTags>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
     </PropertyGroup>
+    
     <PropertyGroup Label="SourceLink">
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
