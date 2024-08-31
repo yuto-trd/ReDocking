@@ -13,8 +13,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="OverflowLayoutView.axaml" />
-                <MergeResourceInclude Source="EdgeBar.axaml" />
-                <MergeResourceInclude Source="EdgeBarButton.axaml" />
+                <MergeResourceInclude Source="SideBar.axaml" />
+                <MergeResourceInclude Source="SideBarButton.axaml" />
                 <MergeResourceInclude Source="VerticallySplittedView.axaml" />
                 <MergeResourceInclude Source="HorizontallySplittedView.axaml" />
                 <MergeResourceInclude Source="ReDock.axaml" />

@@ -15,15 +15,15 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="EdgeDividerBrush">#0F000000</SolidColorBrush>
-                    <!-- <SolidColorBrush x:Key="EdgeDividerBrush">#FFEBEBEB</SolidColorBrush> -->
+                    <SolidColorBrush x:Key="SideDividerBrush">#0F000000</SolidColorBrush>
+                    <!-- <SolidColorBrush x:Key="SideDividerBrush">#FFEBEBEB</SolidColorBrush> -->
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="EdgeDividerBrush">#12FFFFFF</SolidColorBrush>
-                    <!-- <SolidColorBrush x:Key="EdgeDividerBrush">#37000000</SolidColorBrush> -->
+                    <SolidColorBrush x:Key="SideDividerBrush">#12FFFFFF</SolidColorBrush>
+                    <!-- <SolidColorBrush x:Key="SideDividerBrush">#37000000</SolidColorBrush> -->
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
-            <ControlTheme x:Key="EdgeButton"
+            <ControlTheme x:Key="SideBarButton"
                           BasedOn="{StaticResource TransparentButton}"
                           TargetType="Button">
                 <Setter Property="Width" Value="32" />
@@ -32,27 +32,27 @@
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
             </ControlTheme>
-            <DataTemplate x:Key="LeftEdgeButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
-                <local:EdgeBarButton IsChecked="{Binding IsSelected.Value}"
+            <DataTemplate x:Key="LeftSideBarButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
+                <local:SideBarButton IsChecked="{Binding IsSelected.Value}"
                                      ToolTip.Placement="Right"
                                      ToolTip.ShowDelay="200"
                                      ToolTip.Tip="{Binding Name.Value}"
                                      ToolTip.VerticalOffset="0">
-                    <local:EdgeBarButton.IconSource>
+                    <local:SideBarButton.IconSource>
                         <ui:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
-                    </local:EdgeBarButton.IconSource>
-                </local:EdgeBarButton>
+                    </local:SideBarButton.IconSource>
+                </local:SideBarButton>
             </DataTemplate>
-            <DataTemplate x:Key="RightEdgeButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
-                <local:EdgeBarButton IsChecked="{Binding IsSelected.Value}"
+            <DataTemplate x:Key="RightSideBarButtonDataTemplate" x:DataType="local:ToolWindowViewModel">
+                <local:SideBarButton IsChecked="{Binding IsSelected.Value}"
                                      ToolTip.Placement="Left"
                                      ToolTip.ShowDelay="200"
                                      ToolTip.Tip="{Binding Name.Value}"
                                      ToolTip.VerticalOffset="0">
-                    <local:EdgeBarButton.IconSource>
+                    <local:SideBarButton.IconSource>
                         <ui:FontIconSource FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon.Value}" />
-                    </local:EdgeBarButton.IconSource>
-                </local:EdgeBarButton>
+                    </local:SideBarButton.IconSource>
+                </local:SideBarButton>
             </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
@@ -61,50 +61,50 @@
             <Button Grid.Column="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Theme="{StaticResource EdgeButton}">
+                    Theme="{StaticResource SideBarButton}">
                 <ui:SymbolIcon Symbol="Setting" />
             </Button>
         </Grid>
-        <Border Grid.Row="1" Background="{DynamicResource EdgeDividerBrush}" />
-        <local:ReDockHost Grid.Row="2" ButtonMove="OnEdgeBarButtonDrop">
+        <Border Grid.Row="1" Background="{DynamicResource SideDividerBrush}" />
+        <local:ReDockHost Grid.Row="2" ButtonMove="OnSideBarButtonDrop">
             <local:ReDockHost.DockAreas>
-                <local:DockArea EdgeBar="LeftEdgeBar"
-                                LocalizedName="左"
+                <local:DockArea LocalizedName="左"
                                 Location="Left"
+                                SideBar="LeftSideBar"
                                 Target="LeftContent"
                                 View="LeftRightArea" />
-                <local:DockArea EdgeBar="RightEdgeBar"
-                                LocalizedName="右"
+                <local:DockArea LocalizedName="右"
                                 Location="Right"
+                                SideBar="RightSideBar"
                                 Target="RightContent"
                                 View="LeftRightArea" />
-                <local:DockArea EdgeBar="LeftEdgeBar"
-                                LocalizedName="左上"
+                <local:DockArea LocalizedName="左上"
                                 Location="TopLeft"
+                                SideBar="LeftSideBar"
                                 Target="LeftContent"
                                 View="TopLeftRightArea" />
-                <local:DockArea EdgeBar="RightEdgeBar"
-                                LocalizedName="右上"
+                <local:DockArea LocalizedName="右上"
                                 Location="TopRight"
+                                SideBar="RightSideBar"
                                 Target="RightContent"
                                 View="TopLeftRightArea" />
-                <local:DockArea EdgeBar="LeftEdgeBar"
-                                LocalizedName="左下"
+                <local:DockArea LocalizedName="左下"
                                 Location="BottomLeft"
+                                SideBar="LeftSideBar"
                                 Target="LeftContent"
                                 View="BottomLeftRightArea" />
-                <local:DockArea EdgeBar="RightEdgeBar"
-                                LocalizedName="右下"
+                <local:DockArea LocalizedName="右下"
                                 Location="BottomRight"
+                                SideBar="RightSideBar"
                                 Target="RightContent"
                                 View="BottomLeftRightArea" />
             </local:ReDockHost.DockAreas>
             <Grid ColumnDefinitions="40,*,40">
-                <local:EdgeBar Name="LeftEdgeBar"
-                               BorderBrush="{DynamicResource EdgeDividerBrush}"
+                <local:SideBar Name="LeftSideBar"
+                               BorderBrush="{DynamicResource SideDividerBrush}"
                                BorderThickness="0,0,1,0"
                                BottomToolsSource="{Binding LeftBottomTools}"
-                               ItemTemplate="{StaticResource LeftEdgeButtonDataTemplate}"
+                               ItemTemplate="{StaticResource LeftSideBarButtonDataTemplate}"
                                Location="Left"
                                ToolsSource="{Binding LeftTools}"
                                TopToolsSource="{Binding LeftTopTools}" />
@@ -138,12 +138,12 @@
                         </local:VerticallySplittedView.BottomContent>
                     </local:VerticallySplittedView>
                 </local:ReDock>
-                <local:EdgeBar Name="RightEdgeBar"
+                <local:SideBar Name="RightSideBar"
                                Grid.Column="2"
-                               BorderBrush="{DynamicResource EdgeDividerBrush}"
+                               BorderBrush="{DynamicResource SideDividerBrush}"
                                BorderThickness="1,0,0,0"
                                BottomToolsSource="{Binding RightBottomTools}"
-                               ItemTemplate="{StaticResource RightEdgeButtonDataTemplate}"
+                               ItemTemplate="{StaticResource RightSideBarButtonDataTemplate}"
                                Location="Right"
                                ToolsSource="{Binding RightTools}"
                                TopToolsSource="{Binding RightTopTools}" />

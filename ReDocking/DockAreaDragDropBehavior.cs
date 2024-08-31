@@ -44,34 +44,34 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
     private void OnDrop(object? sender, DragEventArgs e)
     {
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             DeleteDragGhost();
             if (_areas == null || AssociatedObject == null)
                 return;
 
-            if (e.Data.Get("EdgeBarButton") is not EdgeBarButton { DockLocation: not null } button)
+            if (e.Data.Get("SideBarButton") is not SideBarButton { DockLocation: not null } button)
                 return;
 
             foreach ((DockArea? dockArea, Control? control) in _areas)
             {
                 // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                if (dockArea == null || control == null || dockArea.EdgeBar == null)
+                if (dockArea == null || control == null || dockArea.SideBar == null)
                     continue;
                 // ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
                 if (HoverContentPresenter(control, e))
                 {
-                    var oldEdgeBar = button.FindAncestorOfType<EdgeBar>();
-                    if (oldEdgeBar == null) return;
+                    var oldSideBar = button.FindAncestorOfType<SideBar>();
+                    if (oldSideBar == null) return;
 
-                    var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, AssociatedObject)
+                    var args = new SideBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, AssociatedObject)
                     {
                         Item = button.DataContext,
                         Button = button,
-                        SourceEdgeBar = oldEdgeBar,
+                        SourceSideBar = oldSideBar,
                         SourceLocation = button.DockLocation.Value,
-                        DestinationEdgeBar = dockArea.EdgeBar,
+                        DestinationSideBar = dockArea.SideBar,
                         DestinationLocation = dockArea.Location,
                         DestinationIndex = 0
                     };
@@ -108,7 +108,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
     private void OnDragEnter(object? sender, DragEventArgs e)
     {
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             _areas = (AssociatedObject as IDockAreaView)!.GetArea();
             CreateDragGhost();
@@ -121,7 +121,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
         if (_areas == null || _dragGhost == null || _layer == null)
             return;
 
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             bool flag = false;
             foreach ((DockArea? dockArea, Control? control) in _areas)
@@ -164,7 +164,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
     private void OnDragLeave(object? sender, DragEventArgs e)
     {
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             DeleteDragGhost();
         }

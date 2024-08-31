@@ -14,22 +14,22 @@ using Avalonia.VisualTree;
 
 namespace ReDocking;
 
-public class EdgeBar : TemplatedControl
+public class SideBar : TemplatedControl
 {
     public static readonly StyledProperty<IEnumerable> TopToolsSourceProperty =
-        AvaloniaProperty.Register<EdgeBar, IEnumerable>(nameof(TopToolsSource));
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(TopToolsSource));
 
     public static readonly StyledProperty<IEnumerable> ToolsSourceProperty =
-        AvaloniaProperty.Register<EdgeBar, IEnumerable>(nameof(ToolsSource));
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(ToolsSource));
 
     public static readonly StyledProperty<IEnumerable> BottomToolsSourceProperty =
-        AvaloniaProperty.Register<EdgeBar, IEnumerable>(nameof(BottomToolsSource));
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(BottomToolsSource));
 
     public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
-        AvaloniaProperty.Register<EdgeBar, IDataTemplate>(nameof(ItemTemplate));
+        AvaloniaProperty.Register<SideBar, IDataTemplate>(nameof(ItemTemplate));
 
     public static readonly StyledProperty<DockAreaLocation> LocationProperty =
-        AvaloniaProperty.Register<EdgeBar, DockAreaLocation>(nameof(Location));
+        AvaloniaProperty.Register<SideBar, DockAreaLocation>(nameof(Location));
 
     private ItemsControl? _topTools;
     private ItemsControl? _tools;
@@ -38,10 +38,10 @@ public class EdgeBar : TemplatedControl
     private StackPanel? _stack;
     private Border? _divider;
 
-    private EdgeBarButton? _dragGhost;
+    private SideBarButton? _dragGhost;
     private AdornerLayer? _layer;
 
-    public EdgeBar()
+    public SideBar()
     {
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, OnDragOver);
@@ -103,24 +103,24 @@ public class EdgeBar : TemplatedControl
         (DockAreaLocation location, int index) = DetermineLocation(position);
         OnDragLeave(sender, e);
 
-        EdgeBar? oldEdgeBar = null;
+        SideBar? oldSideBar = null;
         try
         {
-            if (!e.Data.Contains("EdgeBarButton") ||
-                e.Data.Get("EdgeBarButton") is not EdgeBarButton { DockLocation: not null } button) return;
+            if (!e.Data.Contains("SideBarButton") ||
+                e.Data.Get("SideBarButton") is not SideBarButton { DockLocation: not null } button) return;
 
             if (index < 0) return;
 
-            oldEdgeBar = button.FindAncestorOfType<EdgeBar>();
-            if (oldEdgeBar == null) return;
+            oldSideBar = button.FindAncestorOfType<SideBar>();
+            if (oldSideBar == null) return;
 
-            var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
+            var args = new SideBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
             {
                 Item = button.DataContext,
                 Button = button,
-                SourceEdgeBar = oldEdgeBar,
+                SourceSideBar = oldSideBar,
                 SourceLocation = button.DockLocation.Value,
-                DestinationEdgeBar = this,
+                DestinationSideBar = this,
                 DestinationLocation = location | Location,
                 DestinationIndex = index
             };
@@ -154,7 +154,7 @@ public class EdgeBar : TemplatedControl
         finally
         {
             UpdateDividerVisibility();
-            oldEdgeBar?.UpdateDividerVisibility();
+            oldSideBar?.UpdateDividerVisibility();
         }
     }
 
@@ -170,7 +170,7 @@ public class EdgeBar : TemplatedControl
     private void OnDragLeave(object? sender, DragEventArgs e)
     {
         if (_topTools == null || _tools == null || _bottomTools == null) return;
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             SetGridHitTestVisible(true);
             foreach (Control item in _topTools.GetRealizedContainers()
@@ -194,7 +194,7 @@ public class EdgeBar : TemplatedControl
 
     private void OnDragEnter(object? sender, DragEventArgs e)
     {
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             SetGridHitTestVisible(false);
             if (_divider != null)
@@ -202,7 +202,7 @@ public class EdgeBar : TemplatedControl
                 _divider.IsVisible = true;
             }
 
-            _dragGhost = new EdgeBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
+            _dragGhost = new SideBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
             _layer = AdornerLayer.GetAdornerLayer(this);
             _layer?.Children.Add(_dragGhost);
 
@@ -285,7 +285,7 @@ public class EdgeBar : TemplatedControl
     private void OnDragOver(object? sender, DragEventArgs e)
     {
         if (_topTools == null || _tools == null || _bottomTools == null || _grid == null) return;
-        if (e.Data.Contains("EdgeBarButton"))
+        if (e.Data.Contains("SideBarButton"))
         {
             _grid.IsHitTestVisible = false;
             var position = this.PointToScreen(e.GetPosition(this));

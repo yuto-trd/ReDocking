@@ -4,11 +4,11 @@
                     xmlns:ui="using:FluentAvalonia.UI.Controls">
     <Design.PreviewWith>
         <Border Padding="16">
-            <controls:EdgeBarButton />
+            <controls:SideBarButton />
         </Border>
     </Design.PreviewWith>
 
-    <ControlTheme x:Key="{x:Type controls:EdgeBarButton}" TargetType="controls:EdgeBarButton">
+    <ControlTheme x:Key="{x:Type controls:SideBarButton}" TargetType="controls:SideBarButton">
         <Setter Property="Width" Value="32" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="0" />
@@ -40,7 +40,7 @@
         </Setter>
         <Setter Property="Content">
             <Template>
-                <ui:IconSourceElement IconSource="{Binding IconSource, RelativeSource={RelativeSource AncestorType={x:Type controls:EdgeBarButton}}}" />
+                <ui:IconSourceElement IconSource="{Binding IconSource, RelativeSource={RelativeSource AncestorType={x:Type controls:SideBarButton}}}" />
             </Template>
         </Setter>
 

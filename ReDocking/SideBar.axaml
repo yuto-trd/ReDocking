@@ -3,13 +3,13 @@
                     xmlns:controls="using:ReDocking"
                     xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia">
     <Design.PreviewWith>
-        <controls:EdgeBar />
+        <controls:SideBar />
     </Design.PreviewWith>
-    <ItemsPanelTemplate x:Key="EdgeBarButtonItemsPanelTemplate">
+    <ItemsPanelTemplate x:Key="SideBarButtonItemsPanelTemplate">
         <StackPanel Spacing="8" />
     </ItemsPanelTemplate>
 
-    <ControlTheme x:Key="{x:Type controls:EdgeBar}" TargetType="controls:EdgeBar">
+    <ControlTheme x:Key="{x:Type controls:SideBar}" TargetType="controls:SideBar">
         <Setter Property="Padding" Value="0,4" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -24,7 +24,7 @@
                                     HorizontalAlignment="Center">
                             <ItemsControl Name="PART_TopTools"
                                           ItemTemplate="{TemplateBinding ItemTemplate}"
-                                          ItemsPanel="{StaticResource EdgeBarButtonItemsPanelTemplate}"
+                                          ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
                                           ItemsSource="{TemplateBinding TopToolsSource}" />
                             <Border Name="PART_Divider"
                                     Height="1"
@@ -32,7 +32,7 @@
                                     Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
                             <ItemsControl Name="PART_Tools"
                                           ItemTemplate="{TemplateBinding ItemTemplate}"
-                                          ItemsPanel="{StaticResource EdgeBarButtonItemsPanelTemplate}"
+                                          ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
                                           ItemsSource="{TemplateBinding ToolsSource}" />
                         </StackPanel>
 
@@ -40,7 +40,7 @@
                                       Grid.Row="2"
                                       Width="32"
                                       ItemTemplate="{TemplateBinding ItemTemplate}"
-                                      ItemsPanel="{StaticResource EdgeBarButtonItemsPanelTemplate}"
+                                      ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
                                       ItemsSource="{TemplateBinding BottomToolsSource}" />
                     </Grid>
                 </Border>

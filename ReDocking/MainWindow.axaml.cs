@@ -21,7 +21,7 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void OnEdgeBarButtonDrop(object? sender, EdgeBarButtonMoveEventArgs e)
+    private void OnSideBarButtonDrop(object? sender, SideBarButtonMoveEventArgs e)
     {
         if (DataContext is not MainWindowViewModel viewModel) return;
         var oldItems = GetItemsSource(viewModel, e.SourceLocation);

@@ -9,20 +9,20 @@ namespace ReDocking;
 
 public class ReDockHost : ContentControl
 {
-    public static readonly RoutedEvent<EdgeBarButtonMoveEventArgs> ButtonMoveEvent =
-        RoutedEvent.Register<ReDockHost, EdgeBarButtonMoveEventArgs>(nameof(ButtonMove), RoutingStrategies.Bubble);
+    public static readonly RoutedEvent<SideBarButtonMoveEventArgs> ButtonMoveEvent =
+        RoutedEvent.Register<ReDockHost, SideBarButtonMoveEventArgs>(nameof(ButtonMove), RoutingStrategies.Bubble);
 
     public AvaloniaList<DockArea> DockAreas { get; } = [];
 
-    public event EventHandler<EdgeBarButtonMoveEventArgs> ButtonMove
+    public event EventHandler<SideBarButtonMoveEventArgs> ButtonMove
     {
         add => AddHandler(ButtonMoveEvent, value);
         remove => RemoveHandler(ButtonMoveEvent, value);
     }
 
-    internal void ShowFlyout(EdgeBarButton button)
+    internal void ShowFlyout(SideBarButton button)
     {
-        var flyout = new EdgeBarButtonMenuFlyout(this);
+        var flyout = new SideBarButtonMenuFlyout(this);
         if (button.DockLocation?.HasFlag(DockAreaLocation.Left) == true)
         {
             flyout.Placement = PlacementMode.Right;

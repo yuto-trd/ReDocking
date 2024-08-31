@@ -8,11 +8,11 @@ using Avalonia.VisualTree;
 
 namespace ReDocking;
 
-internal class EdgeBarButtonMenuFlyout : MenuFlyout
+internal class SideBarButtonMenuFlyout : MenuFlyout
 {
     private readonly ReDockHost _dockHost;
 
-    public EdgeBarButtonMenuFlyout(ReDockHost dockHost)
+    public SideBarButtonMenuFlyout(ReDockHost dockHost)
     {
         _dockHost = dockHost;
         var moveMenu = new MenuItem();
@@ -31,23 +31,23 @@ internal class EdgeBarButtonMenuFlyout : MenuFlyout
     private void OnMoveToSubItemClick(object? sender, RoutedEventArgs e)
     {
         if (e.Source is MenuItem { DataContext: DockArea area } &&
-            Target is EdgeBarButton button)
+            Target is SideBarButton button)
         {
             // Target
-            var oldEdgeBar = button.FindAncestorOfType<EdgeBar>();
-            var newEdgeBar = area.EdgeBar;
-            if (oldEdgeBar is null || newEdgeBar is null) return;
+            var oldSideBar = button.FindAncestorOfType<SideBar>();
+            var newSideBar = area.SideBar;
+            if (oldSideBar is null || newSideBar is null) return;
             var oldLocation = button.DockLocation;
             var newLocation = area.Location;
             if (oldLocation is null || oldLocation.Value == newLocation) return;
 
-            var args = new EdgeBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
+            var args = new SideBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
             {
                 Item = button.DataContext,
                 Button = button,
-                SourceEdgeBar = oldEdgeBar,
+                SourceSideBar = oldSideBar,
                 SourceLocation = oldLocation.Value,
-                DestinationEdgeBar = newEdgeBar,
+                DestinationSideBar = newSideBar,
                 DestinationLocation = newLocation,
                 DestinationIndex = 0
             };

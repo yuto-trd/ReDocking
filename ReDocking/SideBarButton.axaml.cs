@@ -13,10 +13,10 @@ using FluentAvalonia.UI.Controls;
 
 namespace ReDocking;
 
-public class EdgeBarButton : ToggleButton
+public class SideBarButton : ToggleButton
 {
     public static readonly StyledProperty<IconSource> IconSourceProperty =
-        AvaloniaProperty.Register<EdgeBarButton, IconSource>(nameof(IconSource));
+        AvaloniaProperty.Register<SideBarButton, IconSource>(nameof(IconSource));
 
     private bool _canDrag;
     private Point _startPoint;
@@ -39,10 +39,10 @@ public class EdgeBarButton : ToggleButton
             "PART_BottomTools" => DockAreaLocation.Bottom,
             _ => default
         };
-        var edgeBar = this.FindAncestorOfType<EdgeBar>();
-        if (edgeBar != null)
+        var sideBar = this.FindAncestorOfType<SideBar>();
+        if (sideBar != null)
         {
-            DockLocation = edgeBar.Location | l;
+            DockLocation = sideBar.Location | l;
         }
     }
 
@@ -84,8 +84,8 @@ public class EdgeBarButton : ToggleButton
                 return;
 
             _canDrag = false;
-            var edgeBar = this.FindAncestorOfType<EdgeBar>();
-            edgeBar?.SetGridHitTestVisible(false);
+            var sideBar = this.FindAncestorOfType<SideBar>();
+            sideBar?.SetGridHitTestVisible(false);
             IsVisible = false;
             if (Parent is ContentPresenter cp)
             {
@@ -93,9 +93,9 @@ public class EdgeBarButton : ToggleButton
             }
 
             var data = new DataObject();
-            data.Set("EdgeBarButton", this);
+            data.Set("SideBarButton", this);
             await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
-            edgeBar?.SetGridHitTestVisible(true);
+            sideBar?.SetGridHitTestVisible(true);
             IsVisible = true;
             if (Parent is ContentPresenter cp2)
             {

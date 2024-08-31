@@ -11,8 +11,8 @@ public class DockArea : AvaloniaObject
     public static readonly StyledProperty<IDockAreaView?> ViewProperty =
         AvaloniaProperty.Register<DockArea, IDockAreaView?>(nameof(View));
 
-    public static readonly StyledProperty<EdgeBar?> EdgeBarProperty =
-        AvaloniaProperty.Register<DockArea, EdgeBar?>(nameof(EdgeBar));
+    public static readonly StyledProperty<SideBar?> SideBarProperty =
+        AvaloniaProperty.Register<DockArea, SideBar?>(nameof(SideBar));
 
     public static readonly StyledProperty<string?> TargetProperty =
         AvaloniaProperty.Register<DockArea, string?>(nameof(Target));
@@ -40,10 +40,10 @@ public class DockArea : AvaloniaObject
     }
 
     [ResolveByName]
-    public EdgeBar? EdgeBar
+    public SideBar? SideBar
     {
-        get => GetValue(EdgeBarProperty);
-        set => SetValue(EdgeBarProperty, value);
+        get => GetValue(SideBarProperty);
+        set => SetValue(SideBarProperty, value);
     }
 
     public DockAreaLocation Location
