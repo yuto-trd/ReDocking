@@ -86,34 +86,67 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
 
     (DockArea, Control)[] IDockAreaView.GetArea()
     {
-        return [(_topDockArea!, _topPresenter!), (_bottomDockArea!,_bottomPresenter!)];
+        return [(_topDockArea!, _topPresenter!), (_bottomDockArea!, _bottomPresenter!)];
     }
-
+    
     void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerTop or SideBarButtonLocation.UpperTop)
+        if (dockArea.Target == nameof(TopContent))
         {
             _topDockArea = dockArea;
         }
-        else if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerBottom or SideBarButtonLocation.UpperBottom)
+        else if (dockArea.Target == nameof(BottomContent))
         {
             _bottomDockArea = dockArea;
         }
 
+        dockArea.PropertyChanged += DockAreaOnPropertyChanged;
         UpdateIsDragDropEnabled();
+    }
+
+    private void DockAreaOnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == DockArea.TargetProperty)
+        {
+            if (sender is DockArea dockArea)
+            {
+                switch (e.OldValue)
+                {
+                    case nameof(BottomContent):
+                        _bottomDockArea = null;
+                        break;
+                    case nameof(TopContent):
+                        _topDockArea = null;
+                        break;
+                }
+
+                switch (dockArea.Target)
+                {
+                    case nameof(TopContent):
+                        _topDockArea = dockArea;
+                        break;
+                    case nameof(BottomContent):
+                        _bottomDockArea = dockArea;
+                        break;
+                }
+            }
+
+            UpdateIsDragDropEnabled();
+        }
     }
 
     void IDockAreaView.OnDetachedFromDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerTop or SideBarButtonLocation.UpperTop)
+        if (dockArea.Target == nameof(TopContent))
         {
             _topDockArea = null;
         }
-        else if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerBottom or SideBarButtonLocation.UpperBottom)
+        else if (dockArea.Target == nameof(BottomContent))
         {
             _bottomDockArea = null;
         }
 
+        dockArea.PropertyChanged -= DockAreaOnPropertyChanged;
         UpdateIsDragDropEnabled();
     }
 

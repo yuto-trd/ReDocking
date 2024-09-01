@@ -87,32 +87,65 @@ public class HorizontallySplittedView : TemplatedControl, IDockAreaView
     {
         return [(_leftDockArea!, _leftPresenter!), (_rightDockArea!, _rightPresenter!)];
     }
-
+    
     void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.LeftRight == SideBarLocation.Left)
+        if (dockArea.Target == nameof(LeftContent))
         {
             _leftDockArea = dockArea;
         }
-        else if (dockArea.Location.LeftRight == SideBarLocation.Right)
+        else if (dockArea.Target == nameof(RightContent))
         {
             _rightDockArea = dockArea;
         }
 
+        dockArea.PropertyChanged += DockAreaOnPropertyChanged;
         UpdateIsDragDropEnabled();
+    }
+
+    private void DockAreaOnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == DockArea.TargetProperty)
+        {
+            if (sender is DockArea dockArea)
+            {
+                switch (e.OldValue)
+                {
+                    case nameof(LeftContent):
+                        _leftDockArea = null;
+                        break;
+                    case nameof(RightContent):
+                        _rightDockArea = null;
+                        break;
+                }
+
+                switch (dockArea.Target)
+                {
+                    case nameof(LeftContent):
+                        _leftDockArea = dockArea;
+                        break;
+                    case nameof(RightContent):
+                        _rightDockArea = dockArea;
+                        break;
+                }
+            }
+
+            UpdateIsDragDropEnabled();
+        }
     }
 
     void IDockAreaView.OnDetachedFromDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.LeftRight == SideBarLocation.Left)
+        if (dockArea.Target == nameof(LeftContent))
         {
             _leftDockArea = null;
         }
-        else if (dockArea.Location.LeftRight == SideBarLocation.Right)
+        else if (dockArea.Target == nameof(RightContent))
         {
             _rightDockArea = null;
         }
 
+        dockArea.PropertyChanged -= DockAreaOnPropertyChanged;
         UpdateIsDragDropEnabled();
     }
 
