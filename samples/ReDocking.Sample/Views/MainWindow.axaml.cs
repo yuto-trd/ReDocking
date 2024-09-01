@@ -70,9 +70,15 @@ public partial class MainWindow : Window
             {
                 destinationIndex--;
             }
-
-            oldItems.Move(sourceIndex, destinationIndex);
-            item.IsSelected.Value = true;
+            try
+            {
+                
+                oldItems.Move(sourceIndex, destinationIndex);
+                item.IsSelected.Value = true;
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
         else
         {
@@ -89,14 +95,16 @@ public partial class MainWindow : Window
     private static ReactiveCollection<ToolWindowViewModel> GetItemsSource(MainWindowViewModel viewModel,
         DockAreaLocation location)
     {
-        return location switch
+        return (location.ButtonLocation, location.LeftRight) switch
         {
-            DockAreaLocation.Left => viewModel.LeftTools,
-            DockAreaLocation.Right => viewModel.RightTools,
-            DockAreaLocation.TopLeft => viewModel.LeftTopTools,
-            DockAreaLocation.BottomLeft => viewModel.LeftBottomTools,
-            DockAreaLocation.TopRight => viewModel.RightTopTools,
-            DockAreaLocation.BottomRight => viewModel.RightBottomTools,
+            (SideBarButtonLocation.UpperTop, SideBarLocation.Left) => viewModel.LeftUpperTopTools,
+            (SideBarButtonLocation.UpperBottom, SideBarLocation.Left) => viewModel.LeftUpperBottomTools,
+            (SideBarButtonLocation.LowerTop, SideBarLocation.Left) => viewModel.LeftLowerTopTools,
+            (SideBarButtonLocation.LowerBottom, SideBarLocation.Left) => viewModel.LeftLowerBottomTools,
+            (SideBarButtonLocation.UpperTop, SideBarLocation.Right) => viewModel.RightUpperTopTools,
+            (SideBarButtonLocation.UpperBottom, SideBarLocation.Right) => viewModel.RightUpperBottomTools,
+            (SideBarButtonLocation.LowerTop, SideBarLocation.Right) => viewModel.RightLowerTopTools,
+            (SideBarButtonLocation.LowerBottom, SideBarLocation.Right) => viewModel.RightLowerBottomTools,
             _ => throw new ArgumentOutOfRangeException(nameof(location), location, null)
         };
     }
@@ -104,14 +112,16 @@ public partial class MainWindow : Window
     private static ReactiveProperty<ToolWindowViewModel?> GetSelectedItem(MainWindowViewModel viewModel,
         DockAreaLocation location)
     {
-        return location switch
+        return (location.ButtonLocation, location.LeftRight) switch
         {
-            DockAreaLocation.Left => viewModel.SelectedLeftTool,
-            DockAreaLocation.Right => viewModel.SelectedRightTool,
-            DockAreaLocation.TopLeft => viewModel.SelectedLeftTopTool,
-            DockAreaLocation.BottomLeft => viewModel.SelectedLeftBottomTool,
-            DockAreaLocation.TopRight => viewModel.SelectedRightTopTool,
-            DockAreaLocation.BottomRight => viewModel.SelectedRightBottomTool,
+            (SideBarButtonLocation.UpperTop, SideBarLocation.Left) => viewModel.SelectedLeftUpperTopTool,
+            (SideBarButtonLocation.UpperBottom, SideBarLocation.Left) => viewModel.SelectedLeftUpperBottomTool,
+            (SideBarButtonLocation.LowerTop, SideBarLocation.Left) => viewModel.SelectedLeftLowerTopTool,
+            (SideBarButtonLocation.LowerBottom, SideBarLocation.Left) => viewModel.SelectedLeftLowerBottomTool,
+            (SideBarButtonLocation.UpperTop, SideBarLocation.Right) => viewModel.SelectedRightUpperTopTool,
+            (SideBarButtonLocation.UpperBottom, SideBarLocation.Right) => viewModel.SelectedRightUpperBottomTool,
+            (SideBarButtonLocation.LowerTop, SideBarLocation.Right) => viewModel.SelectedRightLowerTopTool,
+            (SideBarButtonLocation.LowerBottom, SideBarLocation.Right) => viewModel.SelectedRightLowerBottomTool,
             _ => throw new ArgumentOutOfRangeException(nameof(location), location, null)
         };
     }

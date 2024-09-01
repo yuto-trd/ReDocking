@@ -17,30 +17,41 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}">
                     <Grid Name="PART_Grid" RowDefinitions="Auto,*,Auto">
-                        <StackPanel Name="PART_Stack"
+                        <StackPanel Name="PART_UpperStack"
                                     Grid.Row="0"
                                     Width="32"
                                     HorizontalAlignment="Center">
-                            <ItemsControl Name="PART_TopTools"
+                            <ItemsControl Name="PART_UpperTopTools"
                                           ItemTemplate="{TemplateBinding ItemTemplate}"
                                           ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
-                                          ItemsSource="{TemplateBinding TopToolsSource}" />
-                            <Border Name="PART_Divider"
+                                          ItemsSource="{TemplateBinding UpperTopToolsSource}" />
+                            <Border Name="PART_UpperDivider"
                                     Height="1"
                                     Margin="2,8"
                                     Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
-                            <ItemsControl Name="PART_Tools"
+                            <ItemsControl Name="PART_UpperBottomTools"
                                           ItemTemplate="{TemplateBinding ItemTemplate}"
                                           ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
-                                          ItemsSource="{TemplateBinding ToolsSource}" />
+                                          ItemsSource="{TemplateBinding UpperBottomToolsSource}" />
                         </StackPanel>
 
-                        <ItemsControl Name="PART_BottomTools"
-                                      Grid.Row="2"
-                                      Width="32"
-                                      ItemTemplate="{TemplateBinding ItemTemplate}"
-                                      ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
-                                      ItemsSource="{TemplateBinding BottomToolsSource}" />
+                        <StackPanel Name="PART_LowerStack"
+                                    Grid.Row="2"
+                                    Width="32"
+                                    HorizontalAlignment="Center">
+                            <ItemsControl Name="PART_LowerTopTools"
+                                          ItemTemplate="{TemplateBinding ItemTemplate}"
+                                          ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
+                                          ItemsSource="{TemplateBinding LowerTopToolsSource}" />
+                            <Border Name="PART_LowerDivider"
+                                    Height="1"
+                                    Margin="2,8"
+                                    Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+                            <ItemsControl Name="PART_LowerBottomTools"
+                                          ItemTemplate="{TemplateBinding ItemTemplate}"
+                                          ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
+                                          ItemsSource="{TemplateBinding LowerBottomToolsSource}" />
+                        </StackPanel>
                     </Grid>
                 </Border>
             </ControlTemplate>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 
@@ -16,27 +17,33 @@ namespace ReDocking;
 
 public class SideBar : TemplatedControl
 {
-    public static readonly StyledProperty<IEnumerable> TopToolsSourceProperty =
-        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(TopToolsSource));
+    public static readonly StyledProperty<IEnumerable> UpperTopToolsSourceProperty =
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(UpperTopToolsSource));
 
-    public static readonly StyledProperty<IEnumerable> ToolsSourceProperty =
-        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(ToolsSource));
+    public static readonly StyledProperty<IEnumerable> UpperBottomToolsSourceProperty =
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(UpperBottomToolsSource));
 
-    public static readonly StyledProperty<IEnumerable> BottomToolsSourceProperty =
-        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(BottomToolsSource));
+    public static readonly StyledProperty<IEnumerable> LowerTopToolsSourceProperty =
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(LowerTopToolsSource));
+
+    public static readonly StyledProperty<IEnumerable> LowerBottomToolsSourceProperty =
+        AvaloniaProperty.Register<SideBar, IEnumerable>(nameof(LowerBottomToolsSource));
 
     public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
         AvaloniaProperty.Register<SideBar, IDataTemplate>(nameof(ItemTemplate));
 
-    public static readonly StyledProperty<DockAreaLocation> LocationProperty =
-        AvaloniaProperty.Register<SideBar, DockAreaLocation>(nameof(Location));
+    public static readonly StyledProperty<SideBarLocation> LocationProperty =
+        AvaloniaProperty.Register<SideBar, SideBarLocation>(nameof(Location));
 
-    private ItemsControl? _topTools;
-    private ItemsControl? _tools;
-    private ItemsControl? _bottomTools;
+    private ItemsControl? _upperTopTools;
+    private ItemsControl? _upperBottomTools;
+    private ItemsControl? _lowerTopTools;
+    private ItemsControl? _lowerBottomTools;
     private Grid? _grid;
-    private StackPanel? _stack;
-    private Border? _divider;
+    private StackPanel? _upperStack;
+    private StackPanel? _lowerStack;
+    private Border? _upperDivider;
+    private Border? _lowerDivider;
 
     private SideBarButton? _dragGhost;
     private AdornerLayer? _layer;
@@ -56,25 +63,31 @@ public class SideBar : TemplatedControl
         set => SetValue(ItemTemplateProperty, value);
     }
 
-    public IEnumerable TopToolsSource
+    public IEnumerable UpperTopToolsSource
     {
-        get => GetValue(TopToolsSourceProperty);
-        set => SetValue(TopToolsSourceProperty, value);
+        get => GetValue(UpperTopToolsSourceProperty);
+        set => SetValue(UpperTopToolsSourceProperty, value);
     }
 
-    public IEnumerable ToolsSource
+    public IEnumerable UpperBottomToolsSource
     {
-        get => GetValue(ToolsSourceProperty);
-        set => SetValue(ToolsSourceProperty, value);
+        get => GetValue(UpperBottomToolsSourceProperty);
+        set => SetValue(UpperBottomToolsSourceProperty, value);
     }
 
-    public IEnumerable BottomToolsSource
+    public IEnumerable LowerTopToolsSource
     {
-        get => GetValue(BottomToolsSourceProperty);
-        set => SetValue(BottomToolsSourceProperty, value);
+        get => GetValue(LowerTopToolsSourceProperty);
+        set => SetValue(LowerTopToolsSourceProperty, value);
     }
 
-    public DockAreaLocation Location
+    public IEnumerable LowerBottomToolsSource
+    {
+        get => GetValue(LowerBottomToolsSourceProperty);
+        set => SetValue(LowerBottomToolsSourceProperty, value);
+    }
+
+    public SideBarLocation Location
     {
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
@@ -89,18 +102,21 @@ public class SideBar : TemplatedControl
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        _topTools = e.NameScope.Get<ItemsControl>("PART_TopTools");
-        _tools = e.NameScope.Get<ItemsControl>("PART_Tools");
-        _bottomTools = e.NameScope.Get<ItemsControl>("PART_BottomTools");
+        _upperTopTools = e.NameScope.Get<ItemsControl>("PART_UpperTopTools");
+        _upperBottomTools = e.NameScope.Get<ItemsControl>("PART_UpperBottomTools");
+        _lowerTopTools = e.NameScope.Get<ItemsControl>("PART_LowerTopTools");
+        _lowerBottomTools = e.NameScope.Get<ItemsControl>("PART_LowerBottomTools");
         _grid = e.NameScope.Get<Grid>("PART_Grid");
-        _stack = e.NameScope.Get<StackPanel>("PART_Stack");
-        _divider = e.NameScope.Get<Border>("PART_Divider");
+        _upperStack = e.NameScope.Get<StackPanel>("PART_UpperStack");
+        _lowerStack = e.NameScope.Get<StackPanel>("PART_LowerStack");
+        _upperDivider = e.NameScope.Get<Border>("PART_UpperDivider");
+        _lowerDivider = e.NameScope.Get<Border>("PART_LowerDivider");
     }
 
     private void OnDrop(object? sender, DragEventArgs e)
     {
         var position = this.PointToScreen(e.GetPosition(this));
-        (DockAreaLocation location, int index) = DetermineLocation(position);
+        (SideBarButtonLocation location, int index) = DetermineLocation(position);
         OnDragLeave(sender, e);
 
         SideBar? oldSideBar = null;
@@ -119,9 +135,9 @@ public class SideBar : TemplatedControl
                 Item = button.DataContext,
                 Button = button,
                 SourceSideBar = oldSideBar,
-                SourceLocation = button.DockLocation.Value,
+                SourceLocation = button.DockLocation,
                 DestinationSideBar = this,
-                DestinationLocation = location | Location,
+                DestinationLocation = new(location, Location),
                 DestinationIndex = index
             };
             RaiseEvent(args);
@@ -130,9 +146,10 @@ public class SideBar : TemplatedControl
 
             var newItemsSource = location switch
             {
-                DockAreaLocation.Top => TopToolsSource,
-                DockAreaLocation.Bottom => BottomToolsSource,
-                _ => ToolsSource,
+                SideBarButtonLocation.UpperTop => UpperTopToolsSource,
+                SideBarButtonLocation.UpperBottom => UpperBottomToolsSource,
+                SideBarButtonLocation.LowerTop => LowerTopToolsSource,
+                SideBarButtonLocation.LowerBottom => LowerBottomToolsSource,
             };
 
             var itemsControl = button.FindAncestorOfType<ItemsControl>();
@@ -160,27 +177,32 @@ public class SideBar : TemplatedControl
 
     private void UpdateDividerVisibility()
     {
-        if (_divider != null && _topTools != null && _tools != null)
+        if (_upperDivider != null && _upperTopTools != null && _upperBottomTools != null)
         {
-            _divider.IsVisible = TopToolsSource.Cast<object>().Any() &&
-                                 ToolsSource.Cast<object>().Any();
+            _upperDivider.IsVisible = UpperTopToolsSource.Cast<object>().Any() &&
+                                      UpperBottomToolsSource.Cast<object>().Any();
         }
     }
 
     private void OnDragLeave(object? sender, DragEventArgs e)
     {
-        if (_topTools == null || _tools == null || _bottomTools == null) return;
+        if (_upperTopTools == null || _upperBottomTools == null ||
+            _lowerBottomTools == null || _lowerTopTools == null) return;
         if (e.Data.Contains("SideBarButton"))
         {
             SetGridHitTestVisible(true);
-            foreach (Control item in _topTools.GetRealizedContainers()
-                         .Concat(_tools.GetRealizedContainers())
-                         .Concat(_bottomTools.GetRealizedContainers()))
+            foreach (Control item in _upperTopTools.GetRealizedContainers()
+                         .Concat(_upperBottomTools.GetRealizedContainers())
+                         .Concat(_lowerBottomTools.GetRealizedContainers())
+                         .Concat(_lowerTopTools.GetRealizedContainers()))
             {
                 item.Margin = default;
             }
 
-            _topTools.Margin = default;
+            _upperTopTools.Margin = default;
+            _upperBottomTools.Margin = default;
+            _lowerTopTools.Margin = default;
+            _lowerBottomTools.Margin = default;
             UpdateDividerVisibility();
 
             if (_dragGhost != null && _layer != null)
@@ -197,9 +219,14 @@ public class SideBar : TemplatedControl
         if (e.Data.Contains("SideBarButton"))
         {
             SetGridHitTestVisible(false);
-            if (_divider != null)
+            if (_upperDivider != null)
             {
-                _divider.IsVisible = true;
+                _upperDivider.IsVisible = true;
+            }
+
+            if (_lowerDivider != null)
+            {
+                _lowerDivider.IsVisible = true;
             }
 
             _dragGhost = new SideBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
@@ -210,103 +237,139 @@ public class SideBar : TemplatedControl
         }
     }
 
-    private (DockAreaLocation, int) DetermineLocation(PixelPoint position)
+    private (SideBarButtonLocation, int) DetermineLocation(PixelPoint position)
     {
-        if (_topTools == null || _tools == null || _bottomTools == null || _grid == null || _stack == null)
+        if (_upperTopTools == null || _upperBottomTools == null ||
+            _lowerTopTools == null || _lowerBottomTools == null || _grid == null ||
+            _upperStack == null || _lowerStack == null)
             return (default, -1);
 
         Point clientPosition;
 
-        for (int i = 0; i < _topTools.ItemCount; i++)
+        for (int i = 0; i < _upperTopTools.ItemCount; i++)
         {
-            Control? item = _topTools.ContainerFromIndex(i);
+            Control? item = _upperTopTools.ContainerFromIndex(i);
             if (item?.IsVisible != true) continue;
 
             clientPosition = item.PointToClient(position);
             if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
             {
-                return (DockAreaLocation.Top, i);
+                return (SideBarButtonLocation.UpperTop, i);
             }
         }
 
-        clientPosition = _topTools.PointToClient(position);
-        if (clientPosition.Y < _topTools.Bounds.Height + 8)
+        clientPosition = _upperTopTools.PointToClient(position);
+        if (clientPosition.Y < _upperTopTools.Bounds.Height + 8)
         {
-            return (DockAreaLocation.Top, _topTools.ItemCount);
+            return (SideBarButtonLocation.UpperTop, _upperTopTools.ItemCount);
         }
 
-        for (int i = 0; i < _tools.ItemCount; i++)
+        for (int i = 0; i < _upperBottomTools.ItemCount; i++)
         {
-            Control? item = _tools.ContainerFromIndex(i);
+            Control? item = _upperBottomTools.ContainerFromIndex(i);
             if (item?.IsVisible != true) continue;
 
             clientPosition = item.PointToClient(position);
             if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
             {
-                return (default, i);
+                return (SideBarButtonLocation.UpperBottom, i);
             }
         }
 
         // 上のツールと下のツールの間のスペース
-        var spaceBetween = _grid.Bounds.Height - (_stack.Bounds.Height + _bottomTools.Bounds.Height);
+        var spaceBetween = _grid.Bounds.Height - (_upperStack.Bounds.Height + _lowerStack.Bounds.Height);
         if (spaceBetween < 0)
         {
             spaceBetween = 16;
         }
 
-        clientPosition = _tools.PointToClient(position);
-        if (clientPosition.Y < _tools.Bounds.Height + spaceBetween / 2)
+        clientPosition = _upperBottomTools.PointToClient(position);
+        if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2)
         {
-            return (default, _tools.ItemCount);
+            return (SideBarButtonLocation.UpperBottom, _upperBottomTools.ItemCount);
         }
 
-        for (int i = _bottomTools.ItemCount - 1; i >= 0; i--)
+        clientPosition = _lowerTopTools.PointToClient(position);
+        if (clientPosition.Y < 0)
         {
-            Control? item = _bottomTools.ContainerFromIndex(i);
+            return (SideBarButtonLocation.LowerTop, 0);
+        }
+
+        for (int i = 0; i < _lowerTopTools.ItemCount; i++)
+        {
+            Control? item = _lowerTopTools.ContainerFromIndex(i);
             if (item?.IsVisible != true) continue;
 
             clientPosition = item.PointToClient(position);
-            if (clientPosition.Y > item.Bounds.Height / 2)
+            if (clientPosition.Y < item.Bounds.Height / 2)
             {
-                return (DockAreaLocation.Bottom, i);
+                return (SideBarButtonLocation.LowerTop, i);
             }
         }
 
-
-        clientPosition = _bottomTools.PointToClient(position);
-        if (clientPosition.Y < _bottomTools.Bounds.Height + spaceBetween / 2)
+        clientPosition = _lowerTopTools.PointToClient(position);
+        if (clientPosition.Y < _lowerTopTools.Bounds.Height - 16)
         {
-            return (DockAreaLocation.Bottom, 0);
+            return (SideBarButtonLocation.LowerTop, _lowerTopTools.ItemCount);
         }
 
+        clientPosition = _lowerBottomTools.PointToClient(position);
+        if (clientPosition.Y < -8)
+        {
+            return (SideBarButtonLocation.LowerBottom, 0);
+        }
+
+        for (int i = 0; i < _lowerBottomTools.ItemCount; i++)
+        {
+            Control? item = _lowerBottomTools.ContainerFromIndex(i);
+            if (item?.IsVisible != true) continue;
+
+            clientPosition = item.PointToClient(position);
+            if (clientPosition.Y < item.Bounds.Height / 2)
+            {
+                return (SideBarButtonLocation.LowerBottom, i);
+            }
+        }
+
+        clientPosition = _lowerBottomTools.PointToClient(position);
+        if (clientPosition.Y > _lowerBottomTools.Bounds.Height - 16)
+        {
+            return (SideBarButtonLocation.LowerBottom, _lowerBottomTools.ItemCount);
+        }
+        
         return (default, -1);
     }
 
     private void OnDragOver(object? sender, DragEventArgs e)
     {
-        if (_topTools == null || _tools == null || _bottomTools == null || _grid == null || _stack == null ||
+        if (_upperTopTools == null || _upperBottomTools == null || _lowerTopTools == null ||
+            _lowerBottomTools == null || _grid == null ||
+            _upperStack == null || _lowerStack == null ||
             _layer == null || _dragGhost == null) return;
         if (e.Data.Contains("SideBarButton"))
         {
+            const double Spacing = 8;
+            const double Size = 32;
+
             _grid.IsHitTestVisible = false;
             var position = this.PointToScreen(e.GetPosition(this));
             Point clientPosition;
             bool handled = false;
             double pad = 0;
 
-            int topToolsVisibleItemsCount = 0;
-            for (int i = 0; i < _topTools.ItemCount; i++)
+            int upperTopToolsVisibleItemsCount = 0;
+            for (int i = 0; i < _upperTopTools.ItemCount; i++)
             {
-                Control? item = _topTools.ContainerFromIndex(i);
+                Control? item = _upperTopTools.ContainerFromIndex(i);
                 if (item?.IsVisible != true) continue;
-                topToolsVisibleItemsCount++;
+                upperTopToolsVisibleItemsCount++;
 
                 clientPosition = item.PointToClient(position);
                 if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
                 {
                     var ghostPos = _layer.PointToClient(item.PointToScreen(new(0, -pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - item.Margin.Top, 0, 0);
-                    item.Margin = new Thickness(0, 40, 0, 0);
+                    item.Margin = new Thickness(0, Size + Spacing, 0, 0);
                     handled = true;
                     pad = 0;
                 }
@@ -317,44 +380,46 @@ public class SideBar : TemplatedControl
                 }
             }
 
-            clientPosition = _topTools.PointToClient(position);
-            if (clientPosition.Y < _topTools.Bounds.Height + 8 && !handled)
+            clientPosition = _upperTopTools.PointToClient(position);
+            if (clientPosition.Y < _upperTopTools.Bounds.Height + Spacing && !handled)
             {
-                if (topToolsVisibleItemsCount == 0)
+                if (upperTopToolsVisibleItemsCount == 0)
                 {
-                    var ghostPos = _layer.PointToClient(_topTools.PointToScreen(new(0, _topTools.Bounds.Height - pad)));
+                    var ghostPos =
+                        _layer.PointToClient(_upperTopTools.PointToScreen(new(0, _upperTopTools.Bounds.Height - pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
-                    _topTools.Margin = new Thickness(0, 0, 0, 32);
+                    _upperTopTools.Margin = new Thickness(0, 0, 0, Size);
                 }
                 else
                 {
                     var ghostPos =
-                        _layer.PointToClient(_topTools.PointToScreen(new(0, _topTools.Bounds.Height + 8 - pad)));
+                        _layer.PointToClient(
+                            _upperTopTools.PointToScreen(new(0, _upperTopTools.Bounds.Height + Spacing - pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
-                    _topTools.Margin = new Thickness(0, 0, 0, 40);
+                    _upperTopTools.Margin = new Thickness(0, 0, 0, Size + Spacing);
                 }
 
                 handled = true;
             }
             else
             {
-                pad = _topTools.Margin.Bottom;
-                _topTools.Margin = default;
+                pad = _upperTopTools.Margin.Bottom;
+                _upperTopTools.Margin = default;
             }
 
-            int toolsVisibleItemsCount = 0;
-            for (int i = 0; i < _tools.ItemCount; i++)
+            int upperBottomToolsVisibleItemsCount = 0;
+            for (int i = 0; i < _upperBottomTools.ItemCount; i++)
             {
-                Control? item = _tools.ContainerFromIndex(i);
+                Control? item = _upperBottomTools.ContainerFromIndex(i);
                 if (item?.IsVisible != true) continue;
-                toolsVisibleItemsCount++;
+                upperBottomToolsVisibleItemsCount++;
 
                 clientPosition = item.PointToClient(position);
                 if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
                 {
                     var ghostPos = _layer.PointToClient(item.PointToScreen(new(0, -pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - item.Margin.Top, 0, 0);
-                    item.Margin = new Thickness(0, 40, 0, 0);
+                    item.Margin = new Thickness(0, Size + Spacing, 0, 0);
                     handled = true;
                     pad = 0;
                 }
@@ -366,23 +431,27 @@ public class SideBar : TemplatedControl
             }
 
             // 上のツールと下のツールの間のスペース
-            var spaceBetween = _grid.Bounds.Height - (_stack.Bounds.Height + _bottomTools.Bounds.Height);
+            var spaceBetween = _grid.Bounds.Height - (_upperStack.Bounds.Height + _lowerStack.Bounds.Height);
             if (spaceBetween < 0)
             {
                 spaceBetween = 16;
             }
 
-            clientPosition = _tools.PointToClient(position);
-            if (clientPosition.Y < _tools.Bounds.Height + spaceBetween / 2 && !handled)
+            clientPosition = _upperBottomTools.PointToClient(position);
+            if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2 && !handled)
             {
-                if (toolsVisibleItemsCount == 0)
+                if (upperBottomToolsVisibleItemsCount == 0)
                 {
-                    var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height - pad)));
+                    var ghostPos =
+                        _layer.PointToClient(
+                            _upperBottomTools.PointToScreen(new(0, _upperBottomTools.Bounds.Height - pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
                 }
                 else
                 {
-                    var ghostPos = _layer.PointToClient(_tools.PointToScreen(new(0, _tools.Bounds.Height + 8 - pad)));
+                    var ghostPos =
+                        _layer.PointToClient(
+                            _upperBottomTools.PointToScreen(new(0, _upperBottomTools.Bounds.Height + Spacing - pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
                 }
 
@@ -390,19 +459,19 @@ public class SideBar : TemplatedControl
             }
 
             pad = 0;
-            int bottomToolsVisibleItemsCount = 0;
-            for (int i = _bottomTools.ItemCount - 1; i >= 0; i--)
+            int lowerBottomToolsVisibleItemsCount = 0;
+            for (int i = _lowerBottomTools.ItemCount - 1; i >= 0; i--)
             {
-                Control? item = _bottomTools.ContainerFromIndex(i);
+                Control? item = _lowerBottomTools.ContainerFromIndex(i);
                 if (item?.IsVisible != true) continue;
-                bottomToolsVisibleItemsCount++;
+                lowerBottomToolsVisibleItemsCount++;
 
                 clientPosition = item.PointToClient(position);
                 if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
                 {
-                    var ghostPos = _layer.PointToClient(item.PointToScreen(new(0, item.Bounds.Height + 8 + pad)));
-                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - (40 - item.Margin.Bottom), 0, 0);
-                    item.Margin = new Thickness(0, 0, 0, 40);
+                    var ghostPos = _layer.PointToClient(item.PointToScreen(new(0, pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y + item.Margin.Bottom, 0, 0);
+                    item.Margin = new Thickness(0, 0, 0, Size + Spacing);
                     handled = true;
                 }
                 else
@@ -412,20 +481,68 @@ public class SideBar : TemplatedControl
                 }
             }
 
-
-            clientPosition = _bottomTools.PointToClient(position);
-            if (clientPosition.Y < _bottomTools.Bounds.Height + spaceBetween / 2 && !handled)
+            clientPosition = _lowerBottomTools.PointToClient(position);
+            if (clientPosition.Y > -8 && !handled)
             {
-                if (bottomToolsVisibleItemsCount == 0)
+                if (lowerBottomToolsVisibleItemsCount == 0)
                 {
                     var ghostPos =
-                        _layer.PointToClient(_bottomTools.PointToScreen(new(0, pad)));
+                        _layer.PointToClient(
+                            _lowerTopTools.PointToScreen(new(0, (Spacing * 2) + pad + _lowerTopTools.Bounds.Height)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
+                    _lowerBottomTools.Margin = new Thickness(0, Size, 0, 0);
+                }
+                else
+                {
+                    var ghostPos =
+                        _layer.PointToClient(_lowerBottomTools.PointToScreen(new(0, -(Size + Spacing) + pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y, 0, 0);
+                    _lowerBottomTools.Margin = new Thickness(0, Size + Spacing, 0, 0);
+                }
+
+                handled = true;
+            }
+            else
+            {
+                pad = _lowerBottomTools.Margin.Top;
+                _lowerBottomTools.Margin = default;
+            }
+
+            int lowerTopToolsVisibleItemsCount = 0;
+            for (int i = _lowerTopTools.ItemCount - 1; i >= 0; i--)
+            {
+                Control? item = _lowerTopTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+                lowerTopToolsVisibleItemsCount++;
+
+                clientPosition = item.PointToClient(position);
+                if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
+                {
+                    var ghostPos = _layer.PointToClient(item.PointToScreen(new(0, pad)));
+                    _dragGhost.Margin = new(ghostPos.X, ghostPos.Y + item.Margin.Bottom, 0, 0);
+                    item.Margin = new Thickness(0, 0, 0, Size + Spacing);
+                    handled = true;
+                }
+                else
+                {
+                    pad += item.Margin.Bottom;
+                    item.Margin = default;
+                }
+            }
+
+            clientPosition = _lowerTopTools.PointToClient(position);
+            if (clientPosition.Y < _lowerTopTools.Bounds.Height + spaceBetween / 2 && !handled)
+            {
+                if (lowerTopToolsVisibleItemsCount == 0)
+                {
+                    var ghostPos =
+                        _layer.PointToClient(_lowerTopTools.PointToScreen(new(0, pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
                 }
                 else
                 {
                     var ghostPos =
-                        _layer.PointToClient(_bottomTools.PointToScreen(new(0, -8 + pad)));
+                        _layer.PointToClient(_lowerTopTools.PointToScreen(new(0, -8 + pad)));
                     _dragGhost.Margin = new(ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
                 }
             }

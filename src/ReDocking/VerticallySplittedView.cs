@@ -91,11 +91,11 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
 
     void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.HasFlag(DockAreaLocation.Top))
+        if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerTop or SideBarButtonLocation.UpperTop)
         {
             _topDockArea = dockArea;
         }
-        else if (dockArea.Location.HasFlag(DockAreaLocation.Bottom))
+        else if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerBottom or SideBarButtonLocation.UpperBottom)
         {
             _bottomDockArea = dockArea;
         }
@@ -105,11 +105,11 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
 
     void IDockAreaView.OnDetachedFromDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.HasFlag(DockAreaLocation.Top))
+        if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerTop or SideBarButtonLocation.UpperTop)
         {
             _topDockArea = null;
         }
-        else if (dockArea.Location.HasFlag(DockAreaLocation.Bottom))
+        else if (dockArea.Location.ButtonLocation is SideBarButtonLocation.LowerBottom or SideBarButtonLocation.UpperBottom)
         {
             _bottomDockArea = null;
         }

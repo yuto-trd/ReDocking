@@ -32,14 +32,16 @@ public class SideBarButton : ToggleButton
         var itemsControl = this.FindAncestorOfType<ItemsControl>();
         var l = itemsControl?.Name switch
         {
-            "PART_TopTools" => DockAreaLocation.Top,
-            "PART_BottomTools" => DockAreaLocation.Bottom,
+            "PART_UpperTopTools" => SideBarButtonLocation.UpperTop,
+            "PART_UpperBottomTools" => SideBarButtonLocation.UpperBottom,
+            "PART_LowerTopTools" => SideBarButtonLocation.LowerTop,
+            "PART_LowerBottomTools" => SideBarButtonLocation.LowerBottom,
             _ => default
         };
         var sideBar = this.FindAncestorOfType<SideBar>();
         if (sideBar != null)
         {
-            DockLocation = sideBar.Location | l;
+            DockLocation = new DockAreaLocation(l, sideBar.Location);
         }
     }
 

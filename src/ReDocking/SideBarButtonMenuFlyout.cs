@@ -71,14 +71,14 @@ internal class SideBarButtonMenuFlyout : MenuFlyout
             if (oldSideBar is null || newSideBar is null) return;
             var oldLocation = button.DockLocation;
             var newLocation = area.Location;
-            if (oldLocation is null || oldLocation.Value == newLocation) return;
+            if (oldLocation is null || oldLocation == newLocation) return;
 
             var args = new SideBarButtonMoveEventArgs(ReDockHost.ButtonMoveEvent, this)
             {
                 Item = button.DataContext,
                 Button = button,
                 SourceSideBar = oldSideBar,
-                SourceLocation = oldLocation.Value,
+                SourceLocation = oldLocation,
                 DestinationSideBar = newSideBar,
                 DestinationLocation = newLocation,
                 DestinationIndex = 0

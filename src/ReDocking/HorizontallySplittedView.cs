@@ -90,11 +90,11 @@ public class HorizontallySplittedView : TemplatedControl, IDockAreaView
 
     void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.HasFlag(DockAreaLocation.Left))
+        if (dockArea.Location.LeftRight == SideBarLocation.Left)
         {
             _leftDockArea = dockArea;
         }
-        else if (dockArea.Location.HasFlag(DockAreaLocation.Right))
+        else if (dockArea.Location.LeftRight == SideBarLocation.Right)
         {
             _rightDockArea = dockArea;
         }
@@ -104,11 +104,11 @@ public class HorizontallySplittedView : TemplatedControl, IDockAreaView
 
     void IDockAreaView.OnDetachedFromDockArea(DockArea dockArea)
     {
-        if (dockArea.Location.HasFlag(DockAreaLocation.Left))
+        if (dockArea.Location.LeftRight == SideBarLocation.Left)
         {
             _leftDockArea = null;
         }
-        else if (dockArea.Location.HasFlag(DockAreaLocation.Right))
+        else if (dockArea.Location.LeftRight == SideBarLocation.Right)
         {
             _rightDockArea = null;
         }

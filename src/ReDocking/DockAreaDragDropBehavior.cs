@@ -70,7 +70,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
                         Item = button.DataContext,
                         Button = button,
                         SourceSideBar = oldSideBar,
-                        SourceLocation = button.DockLocation.Value,
+                        SourceLocation = button.DockLocation,
                         DestinationSideBar = dockArea.SideBar,
                         DestinationLocation = dockArea.Location,
                         DestinationIndex = 0

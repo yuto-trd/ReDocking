@@ -41,7 +41,7 @@ public class ReDockHost : ContentControl
     internal void ShowFlyout(SideBarButton button)
     {
         var flyout = new SideBarButtonMenuFlyout(this);
-        if (button.DockLocation?.HasFlag(DockAreaLocation.Left) == true)
+        if (button.DockLocation?.LeftRight == SideBarLocation.Left)
         {
             flyout.Placement = PlacementMode.Right;
         }

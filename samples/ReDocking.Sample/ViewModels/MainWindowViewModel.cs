@@ -41,54 +41,66 @@ public class MainWindowViewModel : IDisposable
                 .Subscribe(x => x.Dispose());
         }
 
-        ConfigureToolsList(LeftTopTools, SelectedLeftTopTool);
-        ConfigureToolsList(LeftTools, SelectedLeftTool);
-        ConfigureToolsList(LeftBottomTools, SelectedLeftBottomTool);
-        ConfigureToolsList(RightTopTools, SelectedRightTopTool);
-        ConfigureToolsList(RightTools, SelectedRightTool);
-        ConfigureToolsList(RightBottomTools, SelectedRightBottomTool);
+        ConfigureToolsList(LeftUpperTopTools, SelectedLeftUpperTopTool);
+        ConfigureToolsList(LeftUpperBottomTools, SelectedLeftUpperBottomTool);
+        ConfigureToolsList(LeftLowerTopTools, SelectedLeftLowerTopTool);
+        ConfigureToolsList(LeftLowerBottomTools, SelectedLeftLowerBottomTool);
+        ConfigureToolsList(RightUpperTopTools, SelectedRightUpperTopTool);
+        ConfigureToolsList(RightUpperBottomTools, SelectedRightUpperBottomTool);
+        ConfigureToolsList(RightLowerTopTools, SelectedRightLowerTopTool);
+        ConfigureToolsList(RightLowerBottomTools, SelectedRightLowerBottomTool);
 
-        LeftTopTools.Add(new ToolWindowViewModel("Search", "\ue721", new SearchViewModel()));
-        LeftTools.Add(new ToolWindowViewModel("Explorer", "\uec50", new ExplorerViewModel()));
-        LeftBottomTools.Add(new ToolWindowViewModel("Debug", "\uebe8", new DebugViewModel()));
-        RightTopTools.Add(new ToolWindowViewModel("Notifications", "\uea8f", new NotificationsViewModel()));
-        RightTools.Add(new ToolWindowViewModel("Properties", "\ue15e", new PropertiesViewModel()));
-        RightBottomTools.Add(new ToolWindowViewModel("Problem", "\ue946", new ProblemViewModel()));
+        LeftUpperTopTools.Add(new ToolWindowViewModel("Search", "\ue721", new SearchViewModel()));
+        LeftUpperBottomTools.Add(new ToolWindowViewModel("Explorer", "\uec50", new ExplorerViewModel()));
+        LeftLowerBottomTools.Add(new ToolWindowViewModel("Debug", "\uebe8", new DebugViewModel()));
+        RightUpperTopTools.Add(new ToolWindowViewModel("Notifications", "\uea8f", new NotificationsViewModel()));
+        RightUpperBottomTools.Add(new ToolWindowViewModel("Properties", "\ue15e", new PropertiesViewModel()));
+        RightLowerBottomTools.Add(new ToolWindowViewModel("Problem", "\ue946", new ProblemViewModel()));
     }
 
-    public ReactiveCollection<ToolWindowViewModel> LeftTopTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftUpperTopTools { get; } = [];
 
-    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftTopTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftUpperTopTool { get; } = new();
 
-    public ReactiveCollection<ToolWindowViewModel> LeftTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftUpperBottomTools { get; } = [];
 
-    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftUpperBottomTool { get; } = new();
 
-    public ReactiveCollection<ToolWindowViewModel> LeftBottomTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftLowerTopTools { get; } = [];
 
-    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftBottomTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftLowerTopTool { get; } = new();
 
-    public ReactiveCollection<ToolWindowViewModel> RightTopTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> LeftLowerBottomTools { get; } = [];
 
-    public ReactiveProperty<ToolWindowViewModel?> SelectedRightTopTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedLeftLowerBottomTool { get; } = new();
 
-    public ReactiveCollection<ToolWindowViewModel> RightTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> RightUpperTopTools { get; } = [];
 
-    public ReactiveProperty<ToolWindowViewModel?> SelectedRightTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightUpperTopTool { get; } = new();
 
-    public ReactiveCollection<ToolWindowViewModel> RightBottomTools { get; } = [];
+    public ReactiveCollection<ToolWindowViewModel> RightUpperBottomTools { get; } = [];
 
-    public ReactiveProperty<ToolWindowViewModel?> SelectedRightBottomTool { get; } = new();
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightUpperBottomTool { get; } = new();
+
+    public ReactiveCollection<ToolWindowViewModel> RightLowerTopTools { get; } = [];
+
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightLowerTopTool { get; } = new();
+
+    public ReactiveCollection<ToolWindowViewModel> RightLowerBottomTools { get; } = [];
+
+    public ReactiveProperty<ToolWindowViewModel?> SelectedRightLowerBottomTool { get; } = new();
 
     public ReactiveCollection<ToolWindowViewModel> FloatingWindows { get; } = [];
 
     public void Dispose()
     {
-        SelectedLeftTopTool.Dispose();
-        SelectedLeftTool.Dispose();
-        SelectedLeftBottomTool.Dispose();
-        SelectedRightTopTool.Dispose();
-        SelectedRightTool.Dispose();
-        SelectedRightBottomTool.Dispose();
+        SelectedLeftUpperTopTool.Dispose();
+        SelectedLeftUpperBottomTool.Dispose();
+        SelectedLeftLowerTopTool.Dispose();
+        SelectedLeftLowerBottomTool.Dispose();
+        SelectedRightUpperTopTool.Dispose();
+        SelectedRightUpperBottomTool.Dispose();
+        SelectedRightLowerTopTool.Dispose();
+        SelectedRightLowerBottomTool.Dispose();
     }
 }
