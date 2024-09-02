@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 
 namespace ReDocking;
@@ -40,7 +41,9 @@ public class SideBar : TemplatedControl
     private StackPanel? _lowerStack;
     private Border? _upperDivider;
     private Border? _lowerDivider;
+    private ReDockHost? _host;
 
+    private SideBarButtonLocation[]? _supportedLocations;
     private SideBarButton? _dragGhost;
     private AdornerLayer? _layer;
 
@@ -107,6 +110,8 @@ public class SideBar : TemplatedControl
         _lowerStack = e.NameScope.Get<StackPanel>("PART_LowerStack");
         _upperDivider = e.NameScope.Get<Border>("PART_UpperDivider");
         _lowerDivider = e.NameScope.Get<Border>("PART_LowerDivider");
+
+        UpdateDividerVisibility();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -136,6 +141,18 @@ public class SideBar : TemplatedControl
         }
     }
 
+    protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToLogicalTree(e);
+        _host = this.FindLogicalAncestorOfType<ReDockHost>();
+    }
+
+    protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromLogicalTree(e);
+        _host = null;
+    }
+
     private void OnLowerToolsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         UpdateLowerDividerVisibility();
@@ -148,8 +165,7 @@ public class SideBar : TemplatedControl
 
     private void OnDrop(object? sender, DragEventArgs e)
     {
-        var position = this.PointToScreen(e.GetPosition(this));
-        (SideBarButtonLocation location, int index) = DetermineLocation(position);
+        (SideBarButtonLocation location, int index) = DetermineLocation(e);
         OnDragLeave(sender, e);
 
         SideBar? oldSideBar = null;
@@ -219,8 +235,16 @@ public class SideBar : TemplatedControl
     {
         if (_upperDivider != null && _upperTopTools != null && _upperBottomTools != null)
         {
-            _upperDivider.IsVisible = UpperTopToolsSource.Cast<object>().Any() &&
-                                      UpperBottomToolsSource.Cast<object>().Any();
+            // 片方しか対応しない場合、Dividerは表示しない
+            if (SupportsLocation(SideBarButtonLocation.UpperTop) && SupportsLocation(SideBarButtonLocation.UpperBottom))
+            {
+                _upperDivider.IsVisible = UpperTopToolsSource.Cast<object>().Any() &&
+                                          UpperBottomToolsSource.Cast<object>().Any();
+            }
+            else
+            {
+                _upperDivider.IsVisible = false;
+            }
         }
     }
 
@@ -228,8 +252,16 @@ public class SideBar : TemplatedControl
     {
         if (_lowerDivider != null && _lowerTopTools != null && _lowerBottomTools != null)
         {
-            _lowerDivider.IsVisible = LowerTopToolsSource.Cast<object>().Any() &&
-                                      LowerBottomToolsSource.Cast<object>().Any();
+            // 片方しか対応しない場合、Dividerは表示しない
+            if (SupportsLocation(SideBarButtonLocation.LowerTop) && SupportsLocation(SideBarButtonLocation.LowerBottom))
+            {
+                _lowerDivider.IsVisible = LowerTopToolsSource.Cast<object>().Any() &&
+                                          LowerBottomToolsSource.Cast<object>().Any();
+            }
+            else
+            {
+                _lowerDivider.IsVisible = false;
+            }
         }
     }
 
@@ -268,14 +300,21 @@ public class SideBar : TemplatedControl
         if (e.Data.Contains("SideBarButton"))
         {
             SetGridHitTestVisible(false);
+            _supportedLocations = _host?.DockAreas
+                .Where(i => i.Location.LeftRight == Location)
+                .Select(i => i.Location.ButtonLocation)
+                .ToArray();
+
             if (_upperDivider != null)
             {
-                _upperDivider.IsVisible = true;
+                _upperDivider.IsVisible = SupportsLocation(SideBarButtonLocation.UpperTop) &&
+                                          SupportsLocation(SideBarButtonLocation.UpperBottom);
             }
 
             if (_lowerDivider != null)
             {
-                _lowerDivider.IsVisible = true;
+                _lowerDivider.IsVisible = SupportsLocation(SideBarButtonLocation.LowerTop) &&
+                                          SupportsLocation(SideBarButtonLocation.LowerBottom);
             }
 
             _dragGhost = new SideBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
@@ -286,7 +325,7 @@ public class SideBar : TemplatedControl
         }
     }
 
-    private (SideBarButtonLocation, int) DetermineLocation(PixelPoint position)
+    private (SideBarButtonLocation, int) DetermineLocation(DragEventArgs e)
     {
         if (_upperTopTools == null || _upperBottomTools == null ||
             _lowerTopTools == null || _lowerBottomTools == null || _grid == null ||
@@ -297,41 +336,6 @@ public class SideBar : TemplatedControl
 
         Point clientPosition;
 
-        const double Spacing = 8;
-
-        for (int i = 0; i < _upperTopTools.ItemCount; i++)
-        {
-            Control? item = _upperTopTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-
-            clientPosition = item.PointToClient(position);
-            // ポインターの位置がアイテムの高さの半分より上にある場合
-            if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
-            {
-                return (SideBarButtonLocation.UpperTop, i);
-            }
-        }
-
-        clientPosition = _upperTopTools.PointToClient(position);
-        // ポインターの位置がUpperTopToolsの高さより上にある場合、最後のアイテムとして扱う
-        if (clientPosition.Y < _upperTopTools.Bounds.Height + Spacing)
-        {
-            return (SideBarButtonLocation.UpperTop, _upperTopTools.ItemCount);
-        }
-
-        for (int i = 0; i < _upperBottomTools.ItemCount; i++)
-        {
-            Control? item = _upperBottomTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-
-            clientPosition = item.PointToClient(position);
-            // ポインターの位置がアイテムの高さの半分より上にある場合
-            if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
-            {
-                return (SideBarButtonLocation.UpperBottom, i);
-            }
-        }
-
         // 上のツールと下のツールの間のスペース
         var spaceBetween = _grid.Bounds.Height - (_upperStack.Bounds.Height + _lowerStack.Bounds.Height);
         if (spaceBetween < 0)
@@ -339,63 +343,111 @@ public class SideBar : TemplatedControl
             spaceBetween = 16;
         }
 
-        clientPosition = _upperBottomTools.PointToClient(position);
-        // ポインターの位置がUpperBottomToolsの高さと空白の半分を足した値より上にある場合、最後のアイテムとして扱う
-        if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2)
-        {
-            return (SideBarButtonLocation.UpperBottom, _upperBottomTools.ItemCount);
-        }
+        const double Spacing = 8;
 
-        clientPosition = _lowerTopTools.PointToClient(position);
-        // ポインターの位置がLowerTopToolsのY座標より上にある場合、最初のアイテムとして扱う
-        if (clientPosition.Y < 0)
+        if (SupportsLocation(SideBarButtonLocation.UpperTop))
         {
-            return (SideBarButtonLocation.LowerTop, 0);
-        }
-
-        for (int i = 0; i < _lowerTopTools.ItemCount; i++)
-        {
-            Control? item = _lowerTopTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-
-            clientPosition = item.PointToClient(position);
-            // ポインターの位置がアイテムの高さの半分より上にある場合
-            if (clientPosition.Y < item.Bounds.Height / 2)
+            for (int i = 0; i < _upperTopTools.ItemCount; i++)
             {
-                return (SideBarButtonLocation.LowerTop, i);
+                Control? item = _upperTopTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+
+                clientPosition = e.GetPosition(item);
+                // ポインターの位置がアイテムの高さの半分より上にある場合
+                if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
+                {
+                    return (SideBarButtonLocation.UpperTop, i);
+                }
+            }
+
+            clientPosition = e.GetPosition(_upperTopTools);
+            // ポインターの位置がUpperTopToolsの高さより上にある場合、最後のアイテムとして扱う
+            if (clientPosition.Y < _upperTopTools.Bounds.Height + Spacing)
+            {
+                return (SideBarButtonLocation.UpperTop, _upperTopTools.ItemCount);
             }
         }
 
-        clientPosition = _lowerTopTools.PointToClient(position);
-        // ポインターの位置がLowerTopToolsの高さより上にある場合、最後のアイテムとして扱う
-        if (clientPosition.Y < _lowerTopTools.Bounds.Height - 16)
+        if (SupportsLocation(SideBarButtonLocation.UpperBottom))
         {
-            return (SideBarButtonLocation.LowerTop, _lowerTopTools.ItemCount);
-        }
-
-        clientPosition = _lowerBottomTools.PointToClient(position);
-        // ポインターの位置がLowerBottomToolsのY座標より-8px上にある場合、最初のアイテムとして扱う
-        if (clientPosition.Y < -8)
-        {
-            return (SideBarButtonLocation.LowerBottom, 0);
-        }
-
-        for (int i = 0; i < _lowerBottomTools.ItemCount; i++)
-        {
-            Control? item = _lowerBottomTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-
-            clientPosition = item.PointToClient(position);
-            if (clientPosition.Y < item.Bounds.Height / 2)
+            for (int i = 0; i < _upperBottomTools.ItemCount; i++)
             {
-                return (SideBarButtonLocation.LowerBottom, i);
+                Control? item = _upperBottomTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+
+                clientPosition = e.GetPosition(item);
+                // ポインターの位置がアイテムの高さの半分より上にある場合
+                if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2)
+                {
+                    return (SideBarButtonLocation.UpperBottom, i);
+                }
+            }
+
+            clientPosition = e.GetPosition(_upperBottomTools);
+            // ポインターの位置がUpperBottomToolsの高さと空白の半分を足した値より上にある場合、最後のアイテムとして扱う
+            if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2)
+            {
+                return (SideBarButtonLocation.UpperBottom, _upperBottomTools.ItemCount);
             }
         }
 
-        clientPosition = _lowerBottomTools.PointToClient(position);
-        if (clientPosition.Y > _lowerBottomTools.Bounds.Height - 16)
+        if (SupportsLocation(SideBarButtonLocation.LowerTop))
         {
-            return (SideBarButtonLocation.LowerBottom, _lowerBottomTools.ItemCount);
+            // LowerTopからLowerTopに移動する場合、IsVisibleがfalseになり、下のforで引っかからないので、先に処理する
+            clientPosition = e.GetPosition(_lowerTopTools);
+            // ポインターの位置がLowerTopToolsのY座標より上にある場合、最初のアイテムとして扱う
+            if (clientPosition.Y < 0)
+            {
+                return (SideBarButtonLocation.LowerTop, 0);
+            }
+
+            for (int i = 0; i < _lowerTopTools.ItemCount; i++)
+            {
+                Control? item = _lowerTopTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+
+                clientPosition = e.GetPosition(item);
+                // ポインターの位置がアイテムの高さの半分より上にある場合
+                if (clientPosition.Y < item.Bounds.Height / 2)
+                {
+                    return (SideBarButtonLocation.LowerTop, i);
+                }
+            }
+
+            clientPosition = e.GetPosition(_lowerTopTools);
+            // ポインターの位置がLowerTopToolsの高さより上にある場合、最後のアイテムとして扱う
+            if (clientPosition.Y < _lowerTopTools.Bounds.Height + 8)
+            {
+                return (SideBarButtonLocation.LowerTop, _lowerTopTools.ItemCount);
+            }
+        }
+
+        if (SupportsLocation(SideBarButtonLocation.LowerBottom))
+        {
+            clientPosition = e.GetPosition(_lowerBottomTools);
+            // ポインターの位置がLowerBottomToolsのY座標より-8px上にある場合、最初のアイテムとして扱う
+            if (clientPosition.Y < -8)
+            {
+                return (SideBarButtonLocation.LowerBottom, 0);
+            }
+
+            for (int i = 0; i < _lowerBottomTools.ItemCount; i++)
+            {
+                Control? item = _lowerBottomTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+
+                clientPosition = e.GetPosition(item);
+                if (clientPosition.Y < item.Bounds.Height / 2)
+                {
+                    return (SideBarButtonLocation.LowerBottom, i);
+                }
+            }
+
+            clientPosition = e.GetPosition(_lowerBottomTools);
+            if (clientPosition.Y > _lowerBottomTools.Bounds.Height - 16)
+            {
+                return (SideBarButtonLocation.LowerBottom, _lowerBottomTools.ItemCount);
+            }
         }
 
         return (default, -1);
@@ -425,80 +477,6 @@ public class SideBar : TemplatedControl
         bool handled = false;
         double pad = 0;
 
-        int upperTopToolsVisibleItemsCount = 0;
-        for (int i = 0; i < _upperTopTools.ItemCount; i++)
-        {
-            Control? item = _upperTopTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-            upperTopToolsVisibleItemsCount++;
-
-            clientPosition = item.PointToClient(position);
-            if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
-            {
-                var ghostPos = _layer.PointToClient(item.PointToScreen(new Point(0, -pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y - item.Margin.Top, 0, 0);
-                item.Margin = new Thickness(0, Size + Spacing, 0, 0);
-                handled = true;
-                pad = 0;
-            }
-            else
-            {
-                pad += item.Margin.Top;
-                item.Margin = default;
-            }
-        }
-
-        clientPosition = _upperTopTools.PointToClient(position);
-        if (clientPosition.Y < _upperTopTools.Bounds.Height + Spacing && !handled)
-        {
-            if (upperTopToolsVisibleItemsCount == 0)
-            {
-                var ghostPos =
-                    _layer.PointToClient(
-                        _upperTopTools.PointToScreen(new Point(0, _upperTopTools.Bounds.Height - pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
-                _upperTopTools.Margin = new Thickness(0, 0, 0, Size);
-            }
-            else
-            {
-                var ghostPos =
-                    _layer.PointToClient(
-                        _upperTopTools.PointToScreen(new Point(0, _upperTopTools.Bounds.Height + Spacing - pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
-                _upperTopTools.Margin = new Thickness(0, 0, 0, Size + Spacing);
-            }
-
-            handled = true;
-        }
-        else
-        {
-            pad = _upperTopTools.Margin.Bottom;
-            _upperTopTools.Margin = default;
-        }
-
-        int upperBottomToolsVisibleItemsCount = 0;
-        for (int i = 0; i < _upperBottomTools.ItemCount; i++)
-        {
-            Control? item = _upperBottomTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-            upperBottomToolsVisibleItemsCount++;
-
-            clientPosition = item.PointToClient(position);
-            if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
-            {
-                var ghostPos = _layer.PointToClient(item.PointToScreen(new Point(0, -pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y - item.Margin.Top, 0, 0);
-                item.Margin = new Thickness(0, Size + Spacing, 0, 0);
-                handled = true;
-                pad = 0;
-            }
-            else
-            {
-                pad += item.Margin.Top;
-                item.Margin = default;
-            }
-        }
-
         // 上のツールと下のツールの間のスペース
         var spaceBetween = _grid.Bounds.Height - (_upperStack.Bounds.Height + _lowerStack.Bounds.Height);
         if (spaceBetween < 0)
@@ -506,116 +484,187 @@ public class SideBar : TemplatedControl
             spaceBetween = 16;
         }
 
-        clientPosition = _upperBottomTools.PointToClient(position);
-        if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2 && !handled)
+        if (SupportsLocation(SideBarButtonLocation.UpperTop))
         {
-            if (upperBottomToolsVisibleItemsCount == 0)
+            int upperTopToolsVisibleItemsCount = 0;
+            for (int i = 0; i < _upperTopTools.ItemCount; i++)
             {
-                var ghostPos =
-                    _layer.PointToClient(
-                        _upperBottomTools.PointToScreen(new Point(0, _upperBottomTools.Bounds.Height - pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
+                Control? item = _upperTopTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+                upperTopToolsVisibleItemsCount++;
+
+                clientPosition = e.GetPosition(item);
+                if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
+                {
+                    SetGhostYPosition(item, -pad - item.Margin.Top);
+                    item.Margin = new Thickness(0, Size + Spacing, 0, 0);
+                    handled = true;
+                    pad = 0;
+                }
+                else
+                {
+                    pad += item.Margin.Top;
+                    item.Margin = default;
+                }
+            }
+
+            clientPosition = e.GetPosition(_upperTopTools);
+            if (clientPosition.Y < _upperTopTools.Bounds.Height + Spacing && !handled)
+            {
+                if (upperTopToolsVisibleItemsCount == 0)
+                {
+                    SetGhostYPosition(_upperTopTools, _upperTopTools.Bounds.Height - pad);
+                    _upperTopTools.Margin = new Thickness(0, 0, 0, Size);
+                }
+                else
+                {
+                    SetGhostYPosition(_upperTopTools, _upperTopTools.Bounds.Height + Spacing - pad);
+                    _upperTopTools.Margin = new Thickness(0, 0, 0, Size + Spacing);
+                }
+
+                handled = true;
             }
             else
             {
-                var ghostPos =
-                    _layer.PointToClient(
-                        _upperBottomTools.PointToScreen(new Point(0, _upperBottomTools.Bounds.Height + Spacing - pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
+                pad = _upperTopTools.Margin.Bottom;
+                _upperTopTools.Margin = default;
+            }
+        }
+
+        if (SupportsLocation(SideBarButtonLocation.UpperBottom))
+        {
+            int upperBottomToolsVisibleItemsCount = 0;
+            for (int i = 0; i < _upperBottomTools.ItemCount; i++)
+            {
+                Control? item = _upperBottomTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+                upperBottomToolsVisibleItemsCount++;
+
+                clientPosition = e.GetPosition(item);
+                if (clientPosition.Y + item.Margin.Top < item.Bounds.Height / 2 && !handled)
+                {
+                    SetGhostYPosition(item, -pad - item.Margin.Top);
+                    item.Margin = new Thickness(0, Size + Spacing, 0, 0);
+                    handled = true;
+                    pad = 0;
+                }
+                else
+                {
+                    pad += item.Margin.Top;
+                    item.Margin = default;
+                }
             }
 
-            handled = true;
+            clientPosition = _upperBottomTools.PointToClient(position);
+            if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2 && !handled)
+            {
+                if (upperBottomToolsVisibleItemsCount == 0)
+                {
+                    SetGhostYPosition(_upperBottomTools, _upperBottomTools.Bounds.Height - pad);
+                }
+                else
+                {
+                    SetGhostYPosition(_upperBottomTools, _upperBottomTools.Bounds.Height + Spacing - pad);
+                }
+
+                handled = true;
+            }
         }
 
         pad = 0;
-        int lowerBottomToolsVisibleItemsCount = 0;
-        for (int i = _lowerBottomTools.ItemCount - 1; i >= 0; i--)
-        {
-            Control? item = _lowerBottomTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-            lowerBottomToolsVisibleItemsCount++;
 
-            clientPosition = item.PointToClient(position);
-            if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
+        if (SupportsLocation(SideBarButtonLocation.LowerBottom))
+        {
+            int lowerBottomToolsVisibleItemsCount = 0;
+            for (int i = _lowerBottomTools.ItemCount - 1; i >= 0; i--)
             {
-                var ghostPos = _layer.PointToClient(item.PointToScreen(new Point(0, pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y + item.Margin.Bottom, 0, 0);
-                item.Margin = new Thickness(0, 0, 0, Size + Spacing);
+                Control? item = _lowerBottomTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+                lowerBottomToolsVisibleItemsCount++;
+
+                clientPosition = item.PointToClient(position);
+                if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
+                {
+                    SetGhostYPosition(item, pad + item.Margin.Bottom);
+                    item.Margin = new Thickness(0, 0, 0, Size + Spacing);
+                    handled = true;
+                }
+                else
+                {
+                    pad += item.Margin.Bottom;
+                    item.Margin = default;
+                }
+            }
+
+            clientPosition = e.GetPosition(_lowerBottomTools);
+            if (clientPosition.Y > -8 && !handled)
+            {
+                if (lowerBottomToolsVisibleItemsCount == 0)
+                {
+                    // _lowerBottomのサイズがよくわからないので、_lowerTopのサイズを使う
+                    SetGhostYPosition(_lowerTopTools, (Spacing * 2) + pad + _lowerTopTools.Bounds.Height);
+                    _lowerBottomTools.Margin = new Thickness(0, Size, 0, 0);
+                }
+                else
+                {
+                    SetGhostYPosition(_lowerBottomTools, -(Size + Spacing) + pad);
+                    _lowerBottomTools.Margin = new Thickness(0, Size + Spacing, 0, 0);
+                }
+
                 handled = true;
             }
             else
             {
-                pad += item.Margin.Bottom;
-                item.Margin = default;
+                pad = _lowerBottomTools.Margin.Top;
+                _lowerBottomTools.Margin = default;
             }
         }
 
-        clientPosition = _lowerBottomTools.PointToClient(position);
-        if (clientPosition.Y > -8 && !handled)
+        if (SupportsLocation(SideBarButtonLocation.LowerTop))
         {
-            if (lowerBottomToolsVisibleItemsCount == 0)
+            int lowerTopToolsVisibleItemsCount = 0;
+            for (int i = _lowerTopTools.ItemCount - 1; i >= 0; i--)
             {
-                var ghostPos =
-                    _layer.PointToClient(
-                        _lowerTopTools.PointToScreen(new Point(0, (Spacing * 2) + pad + _lowerTopTools.Bounds.Height)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
-                _lowerBottomTools.Margin = new Thickness(0, Size, 0, 0);
-            }
-            else
-            {
-                var ghostPos =
-                    _layer.PointToClient(_lowerBottomTools.PointToScreen(new Point(0, -(Size + Spacing) + pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
-                _lowerBottomTools.Margin = new Thickness(0, Size + Spacing, 0, 0);
+                Control? item = _lowerTopTools.ContainerFromIndex(i);
+                if (item?.IsVisible != true) continue;
+                lowerTopToolsVisibleItemsCount++;
+
+                clientPosition = e.GetPosition(item);
+                if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
+                {
+                    SetGhostYPosition(item, pad + item.Margin.Bottom);
+                    item.Margin = new Thickness(0, 0, 0, Size + Spacing);
+                    handled = true;
+                }
+                else
+                {
+                    pad += item.Margin.Bottom;
+                    item.Margin = default;
+                }
             }
 
-            handled = true;
+            clientPosition = e.GetPosition(_lowerTopTools);
+            if (clientPosition.Y < _lowerTopTools.Bounds.Height + spaceBetween / 2 && !handled)
+            {
+                if (lowerTopToolsVisibleItemsCount == 0)
+                {
+                    SetGhostYPosition(_lowerTopTools, pad - _dragGhost.Bounds.Height);
+                }
+                else
+                {
+                    SetGhostYPosition(_lowerTopTools, -Spacing + pad - _dragGhost.Bounds.Height);
+                }
+            }
         }
-        else
-        {
-            pad = _lowerBottomTools.Margin.Top;
-            _lowerBottomTools.Margin = default;
-        }
+    }
 
-        int lowerTopToolsVisibleItemsCount = 0;
-        for (int i = _lowerTopTools.ItemCount - 1; i >= 0; i--)
-        {
-            Control? item = _lowerTopTools.ContainerFromIndex(i);
-            if (item?.IsVisible != true) continue;
-            lowerTopToolsVisibleItemsCount++;
+    private void SetGhostYPosition(Control @base, double y)
+    {
+        _dragGhost!.Margin = (@base.TranslatePoint(new Point(0, y), _layer!) ?? default).ToThickness();
+    }
 
-            clientPosition = item.PointToClient(position);
-            if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
-            {
-                var ghostPos = _layer.PointToClient(item.PointToScreen(new Point(0, pad)));
-                _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y + item.Margin.Bottom, 0, 0);
-                item.Margin = new Thickness(0, 0, 0, Size + Spacing);
-                handled = true;
-            }
-            else
-            {
-                pad += item.Margin.Bottom;
-                item.Margin = default;
-            }
-        }
-
-        clientPosition = _lowerTopTools.PointToClient(position);
-        if (clientPosition.Y < _lowerTopTools.Bounds.Height + spaceBetween / 2 && !handled)
-        {
-            if (lowerTopToolsVisibleItemsCount == 0)
-            {
-                var ghostPos =
-                    _layer.PointToClient(_lowerTopTools.PointToScreen(new Point(0, pad)));
-                _dragGhost.Margin = new Thickness(
-                    ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
-            }
-            else
-            {
-                var ghostPos =
-                    _layer.PointToClient(_lowerTopTools.PointToScreen(new Point(0, -Spacing + pad)));
-                _dragGhost.Margin = new Thickness(
-                    ghostPos.X, ghostPos.Y - _dragGhost.Bounds.Height, 0, 0);
-            }
-        }
+    private bool SupportsLocation(SideBarButtonLocation location)
+    {
+        return _supportedLocations?.Contains(location) != false;
     }
 }
