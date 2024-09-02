@@ -185,7 +185,7 @@ public class ReDock : TemplatedControl, IDockAreaView
         {
             if (_dragEventSubscribed) return;
             _dragEventSubscribed = true;
-            list.Add(new DockAreaDragDropBehavior());
+            list.Add((DockAreaDragDropBehavior?)Activator.CreateInstance(DockAreaDragDropBehavior.GetBehaviorType(this))!);
         }
         else
         {

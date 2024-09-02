@@ -15,11 +15,30 @@ namespace ReDocking;
 
 public class DockAreaDragDropBehavior : Behavior<Control>
 {
-    private Border? _dragGhost;
-    private AdornerLayer? _layer;
-    private (DockArea, Control)[]? _areas;
+    // HorizontallySplittedView, VerticallySplittedView, ReDockで使われるBehaviorの型
+    public static readonly AttachedProperty<Type> BehaviorTypeProperty =
+        AvaloniaProperty.RegisterAttached<DockAreaDragDropBehavior, Control, Type>(
+            "BehaviorType", defaultValue: typeof(DockAreaDragDropBehavior),
+            validate: t => t.IsAssignableTo(typeof(DockAreaDragDropBehavior)));
+
     private bool _allHidden;
     private bool _anyHidden;
+    
+    protected Border? DragGhost { get; private set; }
+
+    protected AdornerLayer? Layer { get; private set; }
+    
+    protected (DockArea, Control)[]? Areas { get; private set; }
+
+    public static void SetBehaviorType(Control obj, Type value)
+    {
+        obj.SetValue(BehaviorTypeProperty, value);
+    }
+
+    public static Type GetBehaviorType(Control obj)
+    {
+        return obj.GetValue(BehaviorTypeProperty);
+    }
 
     protected override void OnAttached()
     {
@@ -52,7 +71,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
         if (e.Data.Contains("SideBarButton"))
         {
             DeleteDragGhost();
-            if (_areas == null || AssociatedObject == null)
+            if (Areas == null || AssociatedObject == null)
                 return;
 
             if (e.Data.Get("SideBarButton") is not SideBarButton { DockLocation: not null } button)
@@ -67,7 +86,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
             }
             else
             {
-                foreach ((DockArea? dockArea, Control? control) in _areas)
+                foreach ((DockArea? dockArea, Control? control) in Areas)
                 {
                     // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                     if (dockArea == null || control == null)
@@ -104,7 +123,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
     private void CreateDragGhost()
     {
-        _dragGhost = new Border
+        DragGhost = new Border
         {
             Background = AssociatedObject!.FindResource("AccentFillColorDefaultBrush") as IBrush,
             IsHitTestVisible = false,
@@ -112,26 +131,26 @@ public class DockAreaDragDropBehavior : Behavior<Control>
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
         };
-        _layer = AdornerLayer.GetAdornerLayer(AssociatedObject!);
-        _layer?.Children.Add(_dragGhost);
+        Layer = AdornerLayer.GetAdornerLayer(AssociatedObject!);
+        Layer?.Children.Add(DragGhost);
     }
 
     private void DeleteDragGhost()
     {
-        if (_layer == null || _dragGhost == null)
+        if (Layer == null || DragGhost == null)
             return;
-        _layer?.Children.Remove(_dragGhost);
-        _dragGhost = null;
-        _layer = null;
+        Layer?.Children.Remove(DragGhost);
+        DragGhost = null;
+        Layer = null;
     }
 
     private void OnDragEnter(object? sender, DragEventArgs e)
     {
         if (e.Data.Contains("SideBarButton"))
         {
-            _areas = (AssociatedObject as IDockAreaView)!.GetArea();
-            _allHidden = _areas.All(i => (i.Item2 as ContentPresenter)?.IsChildVisible() == false);
-            _anyHidden = _areas.Any(i => (i.Item2 as ContentPresenter)?.IsChildVisible() == false);
+            Areas = (AssociatedObject as IDockAreaView)!.GetArea();
+            _allHidden = Areas.All(i => (i.Item2 as ContentPresenter)?.IsChildVisible() == false);
+            _anyHidden = Areas.Any(i => (i.Item2 as ContentPresenter)?.IsChildVisible() == false);
 
             CreateDragGhost();
             OnDragOver(sender, e);
@@ -140,7 +159,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
     private void OnDragOver(object? sender, DragEventArgs e)
     {
-        if (_areas == null || _dragGhost == null || _layer == null)
+        if (Areas == null || DragGhost == null || Layer == null)
             return;
 
         if (e.Data.Contains("SideBarButton"))
@@ -158,7 +177,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
             }
             else
             {
-                foreach ((DockArea? dockArea, Control? control) in _areas)
+                foreach ((DockArea? dockArea, Control? control) in Areas)
                 {
                     // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                     if (dockArea == null || control == null)
@@ -173,20 +192,20 @@ public class DockAreaDragDropBehavior : Behavior<Control>
                 }
             }
 
-            _dragGhost.IsVisible = flag;
+            DragGhost.IsVisible = flag;
         }
     }
 
     // いずれかのpresenterが表示されていない場合、2:1で分けて、1の方にポインターが移動したら非表示されている方に移動するようにする
-    private bool HoverSplittedView(DragEventArgs e, out Action postAction, out DockArea? dockArea)
+    protected virtual bool HoverSplittedView(DragEventArgs e, out Action postAction, out DockArea? dockArea)
     {
         postAction = () => { };
         dockArea = null;
-        if (_areas == null)
+        if (Areas == null)
             return false;
 
-        var first = _areas[0];
-        var second = _areas[1];
+        var first = Areas[0];
+        var second = Areas[1];
         var horizontal = AssociatedObject is HorizontallySplittedView;
         var size = horizontal
             ? AssociatedObject!.Bounds.Width
@@ -208,11 +227,11 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
         if (!firstVisible && firstBounds.Contains(position))
         {
-            if (_dragGhost != null && _layer != null)
+            if (DragGhost != null && Layer != null)
             {
-                _dragGhost.Margin = (AssociatedObject.TranslatePoint(default, _layer) ?? default).ToThickness();
-                _dragGhost.Width = ghostBounds.Width;
-                _dragGhost.Height = ghostBounds.Height;
+                DragGhost.Margin = (AssociatedObject.TranslatePoint(default, Layer) ?? default).ToThickness();
+                DragGhost.Width = ghostBounds.Width;
+                DragGhost.Height = ghostBounds.Height;
             }
 
             postAction = () =>
@@ -233,14 +252,14 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
         if (!secondVisible && secondBounds.Contains(position))
         {
-            if (_dragGhost != null && _layer != null)
+            if (DragGhost != null && Layer != null)
             {
                 var ghostPos = horizontal
                     ? new Point(ghostBounds.Width, 0)
                     : new Point(0, ghostBounds.Height);
-                _dragGhost.Margin = (AssociatedObject.TranslatePoint(ghostPos, _layer) ?? default).ToThickness();
-                _dragGhost.Width = ghostBounds.Width;
-                _dragGhost.Height = ghostBounds.Height;
+                DragGhost.Margin = (AssociatedObject.TranslatePoint(ghostPos, Layer) ?? default).ToThickness();
+                DragGhost.Width = ghostBounds.Width;
+                DragGhost.Height = ghostBounds.Height;
             }
 
             postAction = () =>
@@ -261,11 +280,11 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
         if (bounds.Contains(position))
         {
-            if (_dragGhost != null && _layer != null)
+            if (DragGhost != null && Layer != null)
             {
-                _dragGhost.Margin = (AssociatedObject.TranslatePoint(default, _layer) ?? default).ToThickness();
-                _dragGhost.Width = bounds.Width;
-                _dragGhost.Height = bounds.Height;
+                DragGhost.Margin = (AssociatedObject.TranslatePoint(default, Layer) ?? default).ToThickness();
+                DragGhost.Width = bounds.Width;
+                DragGhost.Height = bounds.Height;
             }
 
             dockArea = firstVisible ? first.Item1 : second.Item1;
@@ -284,12 +303,12 @@ public class DockAreaDragDropBehavior : Behavior<Control>
         if (!presenter.Bounds.WithX(0).WithY(0).Contains(position))
             return false;
 
-        if (_layer != null && _dragGhost != null)
+        if (Layer != null && DragGhost != null)
         {
-            var ghostPos = _layer.PointToClient(presenter.PointToScreen(default));
-            _dragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
-            _dragGhost.Width = presenter.Bounds.Width;
-            _dragGhost.Height = presenter.Bounds.Height;
+            var ghostPos = Layer.PointToClient(presenter.PointToScreen(default));
+            DragGhost.Margin = new Thickness(ghostPos.X, ghostPos.Y, 0, 0);
+            DragGhost.Width = presenter.Bounds.Width;
+            DragGhost.Height = presenter.Bounds.Height;
         }
 
         return true;
