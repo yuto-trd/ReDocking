@@ -93,7 +93,7 @@ public class HorizontallySplittedView : TemplatedControl, IDockAreaView
     {
         return [(_leftDockArea!, _leftPresenter!), (_rightDockArea!, _rightPresenter!)];
     }
-    
+
     void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
     {
         if (dockArea.Target == nameof(LeftContent))

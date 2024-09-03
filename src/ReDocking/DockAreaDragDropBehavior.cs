@@ -25,11 +25,11 @@ public class DockAreaDragDropBehavior : Behavior<Control>
 
     private bool _allHidden;
     private bool _anyHidden;
-    
+
     protected Border? DragGhost { get; private set; }
 
     protected AdornerLayer? Layer { get; private set; }
-    
+
     protected (DockArea, Control)[]? Areas { get; private set; }
 
     public static void SetBehaviorType(Control obj, Type value)

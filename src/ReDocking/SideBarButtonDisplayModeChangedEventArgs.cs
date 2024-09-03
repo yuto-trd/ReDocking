@@ -6,7 +6,7 @@ public class SideBarButtonDisplayModeChangedEventArgs(RoutedEvent? routedEvent, 
     : RoutedEventArgs(routedEvent, source)
 {
     public DockableDisplayMode DisplayMode { get; init; }
-    
+
     public required object? Item { get; init; }
 
     public required SideBarButton Button { get; init; }

@@ -97,7 +97,7 @@ public record DockAreaLocation(SideBarButtonLocation ButtonLocation, SideBarLoca
         {
             return RightLowerBottom;
         }
-        
+
         throw new ArgumentException("Invalid DockAreaLocation string", nameof(s));
     }
 }
