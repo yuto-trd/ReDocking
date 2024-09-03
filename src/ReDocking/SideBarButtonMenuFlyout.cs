@@ -16,7 +16,7 @@ internal class SideBarButtonMenuFlyout : MenuFlyout
     {
         _dockHost = dockHost;
         var list = new List<Control>();
-        
+
         {
             var moveMenu = new MenuItem();
             moveMenu.Header = "Move to";
@@ -30,7 +30,7 @@ internal class SideBarButtonMenuFlyout : MenuFlyout
             moveMenu.AddHandler(MenuItem.ClickEvent, OnMoveToSubItemClick);
             list.Add(moveMenu);
         }
-        
+
         if (dockHost.IsFloatingEnabled)
         {
             var displayMenu = new MenuItem();
@@ -54,7 +54,9 @@ internal class SideBarButtonMenuFlyout : MenuFlyout
         {
             var args = new SideBarButtonDisplayModeChangedEventArgs(ReDockHost.ButtonDisplayModeChangedEvent, this)
             {
-                DisplayMode = mode, Item = button.DataContext, Button = button
+                DisplayMode = mode,
+                Item = button.DataContext,
+                Button = button
             };
             _dockHost.RaiseEvent(args);
         }

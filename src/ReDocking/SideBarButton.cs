@@ -25,7 +25,7 @@ public class SideBarButton : ToggleButton
     }
 
     internal DockAreaLocation? DockLocation { get; set; }
-    
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);

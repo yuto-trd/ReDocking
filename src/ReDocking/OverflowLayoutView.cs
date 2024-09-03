@@ -1,7 +1,7 @@
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 
 using Avalonia;
 using Avalonia.Collections;
@@ -34,9 +34,9 @@ public class OverflowLayoutView : TemplatedControl
     public static readonly StyledProperty<Button?> ButtonProperty =
         AvaloniaProperty.Register<OverflowLayoutView, Button?>("Button");
 
-    private AvaloniaList<object> _items = [];
-    private AvaloniaList<object> _ellipsisItems = [];
-    private List<(object, Size)> _sizeCache = [];
+    private readonly AvaloniaList<object> _items = [];
+    private readonly AvaloniaList<object> _ellipsisItems = [];
+    private readonly List<(object, Size)> _sizeCache = [];
     private ItemsControl? _itemsControl;
     private ContentPresenter? _buttonPresenter;
     private Size _buttonSize;
@@ -90,7 +90,8 @@ public class OverflowLayoutView : TemplatedControl
         _itemsControl.ItemTemplate = ItemTemplate;
         _itemsControl.ItemsPanel = new FuncTemplate<Panel?>(() => new StackPanel
         {
-            Spacing = Spacing, Orientation = Orientation
+            Spacing = Spacing,
+            Orientation = Orientation
         });
     }
 
@@ -242,7 +243,7 @@ public class OverflowLayoutView : TemplatedControl
     {
         return GetSize(_buttonSize);
     }
-    
+
     private void UpdateLayout(Size availableSize)
     {
         var available = GetSize(availableSize);

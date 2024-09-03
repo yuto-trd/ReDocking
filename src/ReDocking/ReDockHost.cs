@@ -23,7 +23,7 @@ public class ReDockHost : ContentControl
         get => GetValue(IsFloatingEnabledProperty);
         set => SetValue(IsFloatingEnabledProperty, value);
     }
-    
+
     public AvaloniaList<DockArea> DockAreas { get; } = [];
 
     public event EventHandler<SideBarButtonMoveEventArgs> ButtonMove

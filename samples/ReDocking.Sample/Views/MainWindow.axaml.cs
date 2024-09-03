@@ -72,10 +72,11 @@ public partial class MainWindow : Window
             }
             try
             {
-                
+
                 oldItems.Move(sourceIndex, destinationIndex);
                 item.IsSelected.Value = true;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
