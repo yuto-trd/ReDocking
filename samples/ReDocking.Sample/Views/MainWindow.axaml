@@ -61,7 +61,7 @@
                 <ui:SymbolIcon Symbol="Setting" />
             </Button>
         </Grid>
-        <Border Grid.Row="1" Background="{DynamicResource SideDividerBrush}" />
+        <Border Grid.Row="1" Background="{DynamicResource ReDockingDividerBrush}" />
         <dock:ReDockHost Grid.Row="2"
                          ButtonDisplayModeChanged="OnSideBarButtonDisplayModeChanged"
                          ButtonMove="OnSideBarButtonDrop"
@@ -113,7 +113,7 @@
             </dock:ReDockHost.DockAreas>
             <Grid ColumnDefinitions="40,*,40">
                 <dock:SideBar Name="LeftSideBar"
-                              BorderBrush="{DynamicResource SideDividerBrush}"
+                              BorderBrush="{DynamicResource ReDockingDividerBrush}"
                               BorderThickness="0,0,1,0"
                               ItemTemplate="{StaticResource LeftSideBarButtonDataTemplate}"
                               Location="Left"
@@ -179,7 +179,7 @@
                 </dock:ReDock>
                 <dock:SideBar Name="RightSideBar"
                               Grid.Column="2"
-                              BorderBrush="{DynamicResource SideDividerBrush}"
+                              BorderBrush="{DynamicResource ReDockingDividerBrush}"
                               BorderThickness="1,0,0,0"
                               ItemTemplate="{StaticResource RightSideBarButtonDataTemplate}"
                               Location="Right"

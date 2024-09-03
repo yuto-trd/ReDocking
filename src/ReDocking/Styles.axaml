@@ -3,10 +3,47 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="SideDividerBrush">#0F000000</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingDividerBrush">#0F000000</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarDividerBrush">#0F000000</SolidColorBrush>
+
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackground">Transparent</SolidColorBrush>
+                    <!--  TextFillColorPrimary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForeground">#E4000000</SolidColorBrush>
+                    <!--  ControlAltFillColorQuarternary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundChecked">#18000000</SolidColorBrush>
+                    <!--  TextFillColorPrimary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundChecked">#E4000000</SolidColorBrush>
+                    <!--  SubtleFillColorSecondary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundPointerOver">#09000000</SolidColorBrush>
+                    <!--  TextFillColorPrimary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundPointerOver">#E4000000</SolidColorBrush>
+                    <!--  SubtleFillColorTertiary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundPressed">#06000000</SolidColorBrush>
+                    <!--  TextFillColorSecondary  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundPressed">#9E000000</SolidColorBrush>
+                    <!--  SubtleFillColorDisabled  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundDisabled">#00FFFFFF</SolidColorBrush>
+                    <!--  TextFillColorDisabled  -->
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundDisabled">#5C000000</SolidColorBrush>
+
+                    <SolidColorBrush x:Key="ReDockingGhostBackground">#06000000</SolidColorBrush>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="SideDividerBrush">#12FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingDividerBrush">#15FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarDividerBrush">#15FFFFFF</SolidColorBrush>
+
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackground">Transparent</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForeground">#FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundChecked">#12FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundChecked">#FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundPointerOver">#0FFFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundPointerOver">#FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundPressed">#0AFFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundPressed">#C5FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonBackgroundDisabled">#00FFFFFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="ReDockingSideBarButtonForegroundDisabled">#5DFFFFFF</SolidColorBrush>
+
+                    <SolidColorBrush x:Key="ReDockingGhostBackground">#0AFFFFFF</SolidColorBrush>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
             <ResourceDictionary.MergedDictionaries>
@@ -17,6 +54,8 @@
                 <MergeResourceInclude Source="ControlThemes/HorizontallySplittedView.axaml" />
                 <MergeResourceInclude Source="ControlThemes/ReDock.axaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <CornerRadius x:Key="ReDockingSideBarButtonCornerRadius">4</CornerRadius>
         </ResourceDictionary>
     </Styles.Resources>
 </Styles>

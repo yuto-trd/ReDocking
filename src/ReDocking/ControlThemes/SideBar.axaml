@@ -28,7 +28,7 @@
                             <Border Name="PART_UpperDivider"
                                     Height="1"
                                     Margin="2,8"
-                                    Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+                                    Background="{DynamicResource ReDockingSideBarDividerBrush}" />
                             <ItemsControl Name="PART_UpperBottomTools"
                                           ItemTemplate="{TemplateBinding ItemTemplate}"
                                           ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"
@@ -46,7 +46,7 @@
                             <Border Name="PART_LowerDivider"
                                     Height="1"
                                     Margin="2,8"
-                                    Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+                                    Background="{DynamicResource ReDockingSideBarDividerBrush}" />
                             <ItemsControl Name="PART_LowerBottomTools"
                                           ItemTemplate="{TemplateBinding ItemTemplate}"
                                           ItemsPanel="{StaticResource SideBarButtonItemsPanelTemplate}"

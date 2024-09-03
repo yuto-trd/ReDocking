@@ -127,9 +127,8 @@ public class DockAreaDragDropBehavior : Behavior<Control>
     {
         DragGhost = new Border
         {
-            Background = AssociatedObject!.FindResource("AccentFillColorDefaultBrush") as IBrush,
+            Background = AssociatedObject!.FindResource("ReDockingGhostBackground") as IBrush,
             IsHitTestVisible = false,
-            Opacity = 0.5,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
         };

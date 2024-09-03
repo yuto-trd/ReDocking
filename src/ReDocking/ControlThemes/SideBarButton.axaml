@@ -11,15 +11,15 @@
         <Setter Property="Width" Value="32" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ReDockingSideBarButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource ReDockingSideBarButtonForeground}" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ReDockingSideBarButtonCornerRadius}" />
         <Setter Property="BackgroundSizing" Value="InnerBorderEdge" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -39,23 +39,27 @@
         </Setter>
 
         <Style Selector="^:checked /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource ControlAltFillColorQuarternaryBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ReDockingSideBarButtonBackgroundChecked}" />
+            <Setter Property="Foreground" Value="{DynamicResource ReDockingSideBarButtonForegroundChecked}" />
         </Style>
 
         <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ReDockingSideBarButtonBackgroundPointerOver}" />
+            <Setter Property="Foreground" Value="{DynamicResource ReDockingSideBarButtonForegroundPointerOver}" />
         </Style>
 
         <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ReDockingSideBarButtonBackgroundPressed}" />
+            <Setter Property="Foreground" Value="{DynamicResource ReDockingSideBarButtonForegroundPressed}" />
         </Style>
 
         <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SubtleFillColorDisabledBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ReDockingSideBarButtonBackgroundDisabled}" />
+            <Setter Property="Foreground" Value="{DynamicResource ReDockingSideBarButtonForegroundDisabled}" />
         </Style>
 
+        <Style Selector="^.ghost /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ReDockingGhostBackground}" />
+        </Style>
     </ControlTheme>
 </ResourceDictionary>

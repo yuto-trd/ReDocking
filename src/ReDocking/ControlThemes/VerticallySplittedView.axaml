@@ -16,7 +16,7 @@
                 <Border Background="{TemplateBinding Background}">
                     <Border Height="1"
                             Margin="0,2"
-                            Background="{DynamicResource SideDividerBrush}" />
+                            Background="{DynamicResource ReDockingDividerBrush}" />
                 </Border>
             </ControlTemplate>
         </Setter>

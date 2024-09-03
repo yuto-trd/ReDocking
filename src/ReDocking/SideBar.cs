@@ -317,7 +317,7 @@ public class SideBar : TemplatedControl
                                           SupportsLocation(SideBarButtonLocation.LowerBottom);
             }
 
-            _dragGhost = new SideBarButton { IsChecked = true, IsHitTestVisible = false, Opacity = 0.8 };
+            _dragGhost = new SideBarButton { IsHitTestVisible = false, Classes = { "ghost" } };
             _layer = AdornerLayer.GetAdornerLayer(this);
             _layer?.Children.Add(_dragGhost);
 
