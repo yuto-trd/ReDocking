@@ -11,6 +11,8 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 
+using Action = System.Action;
+
 namespace ReDocking;
 
 public class DockAreaDragDropBehavior : Behavior<Control>
