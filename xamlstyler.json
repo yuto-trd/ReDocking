@@ -1,0 +1,5 @@
+{
+    "KeepFirstAttributeOnSameLine": true,
+    "NoNewLineMarkupExtensions": "x:Bind, Binding, TemplateBinding, CompiledBinding, ReflectionBinding"
+}
+
