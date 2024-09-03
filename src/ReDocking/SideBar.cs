@@ -472,7 +472,6 @@ public class SideBar : TemplatedControl
         const double Size = 32;
 
         _grid.IsHitTestVisible = false;
-        var position = this.PointToScreen(e.GetPosition(this));
         Point clientPosition;
         bool handled = false;
         double pad = 0;
@@ -555,7 +554,7 @@ public class SideBar : TemplatedControl
                 }
             }
 
-            clientPosition = _upperBottomTools.PointToClient(position);
+            clientPosition = e.GetPosition(_upperBottomTools);
             if (clientPosition.Y < _upperBottomTools.Bounds.Height + spaceBetween / 2 && !handled)
             {
                 if (upperBottomToolsVisibleItemsCount == 0)
@@ -582,7 +581,7 @@ public class SideBar : TemplatedControl
                 if (item?.IsVisible != true) continue;
                 lowerBottomToolsVisibleItemsCount++;
 
-                clientPosition = item.PointToClient(position);
+                clientPosition = e.GetPosition(item);
                 if (clientPosition.Y > item.Bounds.Height / 2 && !handled)
                 {
                     SetGhostYPosition(item, pad + item.Margin.Bottom);
