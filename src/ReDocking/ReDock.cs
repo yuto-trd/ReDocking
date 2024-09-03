@@ -54,6 +54,12 @@ public class ReDock : TemplatedControl, IDockAreaView
 
     private const double ThumbPadding = 2;
 
+    static ReDock()
+    {
+        DockAreaDragDropBehavior.BehaviorTypeProperty.Changed.AddClassHandler<ReDock, Type>(
+            (s, e) => s.OnBehaviorTypeChanged(e));
+    }
+
     [DependsOn(nameof(LeftContentTemplate))]
     public object? LeftContent
     {
@@ -193,6 +199,18 @@ public class ReDock : TemplatedControl, IDockAreaView
             _dragEventSubscribed = false;
 
             list.RemoveAll(list.OfType<DockAreaDragDropBehavior>());
+        }
+    }
+
+    private void OnBehaviorTypeChanged(AvaloniaPropertyChangedEventArgs<Type> e)
+    {
+        if (_dragEventSubscribed && (_leftDockArea != null || _rightDockArea != null))
+        {
+            var list = Interaction.GetBehaviors(this);
+            list.RemoveAll(list.OfType<DockAreaDragDropBehavior>());
+            var type = e.NewValue.GetValueOrDefault() ?? typeof(DockAreaDragDropBehavior);
+            var newBehavior = Activator.CreateInstance(type);
+            list.Add((DockAreaDragDropBehavior)newBehavior!);
         }
     }
 

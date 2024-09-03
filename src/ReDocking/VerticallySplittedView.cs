@@ -46,6 +46,12 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
 
     private const double ThumbPadding = 2;
 
+    static VerticallySplittedView()
+    {
+        DockAreaDragDropBehavior.BehaviorTypeProperty.Changed.AddClassHandler<VerticallySplittedView, Type>(
+            (s, e) => s.OnBehaviorTypeChanged(e));
+    }
+
     [DependsOn(nameof(TopContentTemplate))]
     public object? TopContent
     {
@@ -88,7 +94,7 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
     {
         return [(_topDockArea!, _topPresenter!), (_bottomDockArea!, _bottomPresenter!)];
     }
-    
+
     void IDockAreaView.OnAttachedToDockArea(DockArea dockArea)
     {
         if (dockArea.Target == nameof(TopContent))
@@ -157,7 +163,8 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
         {
             if (_dragEventSubscribed) return;
             _dragEventSubscribed = true;
-            list.Add((DockAreaDragDropBehavior?)Activator.CreateInstance(DockAreaDragDropBehavior.GetBehaviorType(this))!);
+            list.Add(
+                (DockAreaDragDropBehavior?)Activator.CreateInstance(DockAreaDragDropBehavior.GetBehaviorType(this))!);
         }
         else
         {
@@ -165,6 +172,18 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
             _dragEventSubscribed = false;
 
             list.RemoveAll(list.OfType<DockAreaDragDropBehavior>());
+        }
+    }
+
+    private void OnBehaviorTypeChanged(AvaloniaPropertyChangedEventArgs<Type> e)
+    {
+        if (_dragEventSubscribed && (_topDockArea != null || _bottomDockArea != null))
+        {
+            var list = Interaction.GetBehaviors(this);
+            list.RemoveAll(list.OfType<DockAreaDragDropBehavior>());
+            var type = e.NewValue.GetValueOrDefault() ?? typeof(DockAreaDragDropBehavior);
+            var newBehavior = Activator.CreateInstance(type);
+            list.Add((DockAreaDragDropBehavior)newBehavior!);
         }
     }
 
