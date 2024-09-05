@@ -7,6 +7,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Layout;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
@@ -127,7 +128,7 @@ public class DockAreaDragDropBehavior : Behavior<Control>
     {
         DragGhost = new Border
         {
-            Background = AssociatedObject!.FindResource("ReDockingGhostBackground") as IBrush,
+            [!Border.BackgroundProperty] = new DynamicResourceExtension("ReDockingGhostBackground"),
             IsHitTestVisible = false,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
