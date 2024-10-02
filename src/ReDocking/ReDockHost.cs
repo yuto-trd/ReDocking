@@ -13,7 +13,12 @@ public class ReDockHost : ContentControl
         RoutedEvent.Register<ReDockHost, SideBarButtonMoveEventArgs>(nameof(ButtonMove), RoutingStrategies.Bubble);
 
     public static readonly RoutedEvent<SideBarButtonDisplayModeChangedEventArgs> ButtonDisplayModeChangedEvent =
-        RoutedEvent.Register<ReDockHost, SideBarButtonDisplayModeChangedEventArgs>(nameof(ButtonDisplayModeChanged), RoutingStrategies.Bubble);
+        RoutedEvent.Register<ReDockHost, SideBarButtonDisplayModeChangedEventArgs>(nameof(ButtonDisplayModeChanged),
+            RoutingStrategies.Bubble);
+
+    public static readonly RoutedEvent<SideBarButtonFlyoutRequestedEventArgs> ButtonFlyoutRequestedEvent =
+        RoutedEvent.Register<ReDockHost, SideBarButtonFlyoutRequestedEventArgs>(nameof(ButtonFlyoutRequested),
+            RoutingStrategies.Bubble);
 
     public static readonly StyledProperty<bool> IsFloatingEnabledProperty =
         AvaloniaProperty.Register<ReDockHost, bool>(nameof(IsFloatingEnabled));
@@ -37,9 +42,19 @@ public class ReDockHost : ContentControl
         add => AddHandler(ButtonDisplayModeChangedEvent, value);
         remove => RemoveHandler(ButtonDisplayModeChangedEvent, value);
     }
+    
+    public event EventHandler<SideBarButtonFlyoutRequestedEventArgs> ButtonFlyoutRequested
+    {
+        add => AddHandler(ButtonFlyoutRequestedEvent, value);
+        remove => RemoveHandler(ButtonFlyoutRequestedEvent, value);
+    }
 
     internal void ShowFlyout(SideBarButton button)
     {
+        var args = new SideBarButtonFlyoutRequestedEventArgs(button, this, ButtonFlyoutRequestedEvent, this);
+        RaiseEvent(args);
+        if (args.Handled) return;
+        
         var flyout = new SideBarButtonMenuFlyout(this);
         if (button.DockLocation?.LeftRight == SideBarLocation.Left)
         {
