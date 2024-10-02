@@ -64,6 +64,7 @@
         <Border Grid.Row="1" Background="{DynamicResource ReDockingDividerBrush}" />
         <dock:ReDockHost Grid.Row="2"
                          ButtonDisplayModeChanged="OnSideBarButtonDisplayModeChanged"
+                         ButtonFlyoutRequested="OnButtonFlyoutRequested"
                          ButtonMove="OnSideBarButtonDrop"
                          IsFloatingEnabled="True">
             <dock:ReDockHost.DockAreas>
