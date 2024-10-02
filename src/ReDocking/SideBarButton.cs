@@ -24,7 +24,7 @@ public class SideBarButton : ToggleButton
         set => SetValue(DisplayModeProperty, value);
     }
 
-    internal DockAreaLocation? DockLocation { get; set; }
+    public DockAreaLocation? DockLocation { get; internal set; }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {

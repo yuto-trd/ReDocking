@@ -91,9 +91,8 @@ public partial class MainWindow : Window
 
         e.Handled = true;
     }
-
-
-    private static ReactiveCollection<ToolWindowViewModel> GetItemsSource(MainWindowViewModel viewModel,
+    
+    internal static ReactiveCollection<ToolWindowViewModel> GetItemsSource(MainWindowViewModel viewModel,
         DockAreaLocation location)
     {
         return (location.ButtonLocation, location.LeftRight) switch
@@ -144,5 +143,21 @@ public partial class MainWindow : Window
         }
 
         e.Handled = true;
+    }
+
+    private void OnButtonFlyoutRequested(object? sender, SideBarButtonFlyoutRequestedEventArgs e)
+    {
+        e.Handled = true;
+        var flyout = new CustomSideBarButtonMenuFlyout(e.DockHost);
+        if (e.Button.DockLocation?.LeftRight == SideBarLocation.Left)
+        {
+            flyout.Placement = PlacementMode.Right;
+        }
+        else
+        {
+            flyout.Placement = PlacementMode.Left;
+        }
+
+        flyout.ShowAt(e.Button);
     }
 }
