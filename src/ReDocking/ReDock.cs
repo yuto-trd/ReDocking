@@ -330,12 +330,12 @@ public class ReDock : TemplatedControl, IDockAreaView
             _leftThumb.Margin = new Thickness(leftWidth - ThumbPadding, 0, 0, 0);
 
             _presenter.Margin = new Thickness(leftWidth + ThumbPadding, 0, 0, 0);
-            _presenter.Width = centerWidth - ThumbPadding * 2;
+            _presenter.Width = Math.Max(centerWidth - ThumbPadding * 2, 0);
 
             _rightThumb.Margin = new Thickness(leftWidth + centerWidth - ThumbPadding, 0, 0, 0);
 
             _rightPresenter.Margin = new Thickness(leftWidth + centerWidth + ThumbPadding, 0, 0, 0);
-            _rightPresenter.Width = rightWidth - ThumbPadding;
+            _rightPresenter.Width = Math.Max(rightWidth - ThumbPadding, 0);
         }
         else
         {
@@ -347,17 +347,17 @@ public class ReDock : TemplatedControl, IDockAreaView
                 _leftThumb.Margin = new Thickness(leftWidth - ThumbPadding, 0, 0, 0);
 
                 _presenter.Margin = new Thickness(leftWidth + ThumbPadding, 0, 0, 0);
-                _presenter.Width = centerWidth - ThumbPadding + rightWidth;
+                _presenter.Width = Math.Max(centerWidth - ThumbPadding + rightWidth, 0);
             }
             else if (_rightPresenter.IsChildVisible())
             {
                 _presenter.Margin = new Thickness(0, 0, 0, 0);
-                _presenter.Width = leftWidth + centerWidth - ThumbPadding;
+                _presenter.Width = Math.Max(leftWidth + centerWidth - ThumbPadding, 0);
 
                 _rightThumb.Margin = new Thickness(leftWidth + centerWidth - ThumbPadding, 0, 0, 0);
 
                 _rightPresenter.Margin = new Thickness(leftWidth + centerWidth + ThumbPadding, 0, 0, 0);
-                _rightPresenter.Width = rightWidth - ThumbPadding;
+                _rightPresenter.Width = Math.Max(rightWidth - ThumbPadding, 0);
             }
             else
             {

@@ -277,7 +277,7 @@ public class VerticallySplittedView : TemplatedControl, IDockAreaView
             _thumb.Margin = new Thickness(0, topHeight - ThumbPadding, 0, 0);
 
             _bottomPresenter.Margin = new Thickness(0, topHeight + ThumbPadding, 0, 0);
-            _bottomPresenter.Height = bottomHeight - ThumbPadding;
+            _bottomPresenter.Height = Math.Max(bottomHeight - ThumbPadding, 0);
         }
         else
         {

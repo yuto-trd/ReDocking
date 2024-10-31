@@ -275,7 +275,7 @@ public class HorizontallySplittedView : TemplatedControl, IDockAreaView
             _thumb.Margin = new Thickness(leftWidth - ThumbPadding, 0, 0, 0);
 
             _rightPresenter.Margin = new Thickness(leftWidth + ThumbPadding, 0, 0, 0);
-            _rightPresenter.Width = rightWidth - ThumbPadding;
+            _rightPresenter.Width = Math.Max(rightWidth - ThumbPadding, 0);
         }
         else
         {
