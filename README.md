@@ -1,6 +1,6 @@
 # ReDocking
 
-![](https://img.shields.io/github/stars/indigo-san/ReDocking)
+![](https://img.shields.io/github/stars/yuto-trd/ReDocking)
 [![](https://img.shields.io/nuget/dt/ReDocking.Avalonia?label=nuget-downloads)](https://www.nuget.org/packages/ReDocking.Avalonia/)
 
 Docking UI library for Avalonia like JetBrains IDEs.
