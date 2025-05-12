@@ -20,7 +20,7 @@
                     <ItemsControl Name="PART_ItemsControl">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="{TemplateBinding Orientation}" Spacing="{TemplateBinding Spacing}" />
+                                <StackPanel Orientation="{Binding $parent[local:OverflowLayoutView].Orientation}" Spacing="{Binding $parent[local:OverflowLayoutView].Spacing}" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
