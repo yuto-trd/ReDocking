@@ -2,8 +2,11 @@ using System;
 using System.Collections.Specialized;
 using System.Linq;
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
+
+using FluentAvalonia.UI.Windowing;
 
 using Reactive.Bindings;
 
@@ -11,20 +14,37 @@ using ReDocking.ViewModels;
 
 namespace ReDocking.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : AppWindow
 {
     private readonly MainWindowViewModel _viewModel;
 
     public MainWindow()
     {
-        ExtendClientAreaChromeHints =
-            ExtendClientAreaChromeHints.SystemChrome | ExtendClientAreaChromeHints.OSXThickTitleBar;
-        ExtendClientAreaToDecorationsHint = true;
-        ExtendClientAreaTitleBarHeightHint = 40;
+        InitializeComponent();
+        if (!OperatingSystem.IsWindows())
+        {
+            ExtendClientAreaChromeHints =
+                ExtendClientAreaChromeHints.SystemChrome | ExtendClientAreaChromeHints.OSXThickTitleBar;
+            ExtendClientAreaToDecorationsHint = true;
+            ExtendClientAreaTitleBarHeightHint = 40;
+        }
+
         _viewModel = new MainWindowViewModel();
         _viewModel.FloatingWindows.CollectionChanged += FloatingWindowsOnCollectionChanged;
         DataContext = _viewModel;
-        InitializeComponent();
+    }
+
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        if (OperatingSystem.IsWindows())
+        {
+            (base.TitleBar).Height = 40;
+            base.TitleBar.ExtendsContentIntoTitleBar = true;
+
+            TitleBar.Margin = new Thickness(0, 0, base.TitleBar.LeftInset, 0);
+            SetAllowInteractionInTitleBar(TitleBar.Children[0], true);
+        }
     }
 
     private void FloatingWindowsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -70,9 +90,9 @@ public partial class MainWindow : Window
             {
                 destinationIndex--;
             }
+
             try
             {
-
                 oldItems.Move(sourceIndex, destinationIndex);
                 item.IsSelected.Value = true;
             }
